@@ -34,6 +34,22 @@ PrimeFaces appends dialogs to the end of the HTML `<body>`, so they end up outsi
 ALWAYS load the CSS file with custom definitions via a `<h:outputStylesheet target="head">` inside `<h:body>`.
 When overriding PrimeFaces-specific CSS, ALWAYS use the exact same selector PrimeFaces is using, and use a separate CSS file from user-defined classes, e.g. `primefaces-overrides.css`.
 
+## JavaScript
+
+When patching PrimeFaces widget JavaScript (e.g. to fix a client-side bug or tweak rendering), ALWAYS use the official `extend()` pattern, NEVER reach into `prototype` directly and NEVER poll/wait for the widget to appear:
+
+```javascript
+if (PrimeFaces.widget.Slider) {
+    PrimeFaces.widget.Slider = PrimeFaces.widget.Slider.extend({
+        onSlide: function (event, ui) {
+            // override here; call this._super(event, ui) to delegate
+        }
+    });
+}
+```
+
+Place such patches in a dedicated file (e.g. `primefaces-patches.js`) and load it via `<h:outputScript target="head">` inside `<h:body>` so it runs after the PrimeFaces core script. The `if (PrimeFaces.widget.X)` guard is sufficient because the widget script is loaded together with PrimeFaces core; no polling or `setInterval` workaround is needed.
+
 ## References
 
 - Source code: https://github.com/primefaces/primefaces
