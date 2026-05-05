@@ -1,6 +1,6 @@
 # Examples
 
-*Version 1.2.1*
+*Version 1.2.2*
 
 Concrete code examples demonstrating best practices from the rules.
 All examples use Faces 4.0+ namespaces.

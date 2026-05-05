@@ -1,6 +1,6 @@
 # Claude Faces Expert
 
-*Version 1.2.1*
+*Version 1.2.2*
 
 Drop-in Jakarta Faces knowledge base for [Claude Code](https://claude.com/claude-code).
 Makes Claude Code more aware of Jakarta Faces (formerly JSF) best practices, common pitfalls, and diagnostic decision trees.
@@ -73,6 +73,26 @@ Then add this line to your `CLAUDE.md` (or `~/.claude/CLAUDE.md` for user scope,
 ```
 Jakarta Faces rules: @.claude/faces/rules.md
 ```
+
+### OpenCode
+
+For [OpenCode](https://opencode.ai/) users, use the OpenCode-specific installer:
+
+**Project scope:**
+
+```sh
+curl -sL https://raw.githubusercontent.com/omnifaces/claude-faces-expert/main/install-opencode.sh | sh
+```
+
+This calls the standard installer (which sets up `./.claude/` and `CLAUDE.md`) and additionally creates `opencode.json` and `AGENTS.md` in the project root. The same `.claude/faces/` rules are used by both tools.
+
+**User scope:**
+
+```sh
+curl -sL https://raw.githubusercontent.com/omnifaces/claude-faces-expert/main/install-opencode.sh | sh -s -- --user
+```
+
+This installs into `~/.claude/` and `~/.config/opencode/`, applying the rules to all projects.
 
 ## How it Works
 
