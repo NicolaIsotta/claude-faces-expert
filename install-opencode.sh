@@ -27,10 +27,8 @@ OPENCODE_JSON="$TARGET/opencode.json"
 AGENTS_MD="$TARGET/AGENTS.md"
 
 if [ "$SCOPE" = "user" ]; then
-    CLAUDE_MD="$HOME/.claude/CLAUDE.md"
     INSTRUCTIONS="$HOME/.claude/faces/rules.md"
 else
-    CLAUDE_MD="./CLAUDE.md"
     INSTRUCTIONS=".claude/faces/rules.md"
 fi
 
@@ -41,19 +39,24 @@ if [ ! -f "$OPENCODE_JSON" ]; then
     printf '{\n  "instructions": ["%s"]\n}\n' "$INSTRUCTIONS" > "$OPENCODE_JSON"
     echo "Created $OPENCODE_JSON"
 elif ! grep -qF "$INSTRUCTIONS" "$OPENCODE_JSON"; then
-    echo "Note: $OPENCODE_JSON exists. Add to instructions: \"$INSTRUCTIONS\""
+    echo "WARNING: $OPENCODE_JSON already exists. Manual step required:" >&2
+    echo '  If "instructions" already exists, append: "'"$INSTRUCTIONS"'"' >&2
+    echo '  Otherwise add: "instructions": ["'"$INSTRUCTIONS"'"]' >&2
 else
     echo "$OPENCODE_JSON already references Faces rules."
 fi
 
 if [ ! -f "$AGENTS_MD" ]; then
-    printf '# Agent Notes\n\nSee [%s](%s) for Jakarta Faces expert rules.\n\n@%s\n' "$CLAUDE_MD" "$CLAUDE_MD" "$INSTRUCTIONS" > "$AGENTS_MD"
+    printf '# Agent Notes\n\n@%s\n' "$INSTRUCTIONS" > "$AGENTS_MD"
     echo "Created $AGENTS_MD"
 elif ! grep -qF "$INSTRUCTIONS" "$AGENTS_MD"; then
-    printf '\n## Jakarta Faces\n\nSee [%s](%s) for Jakarta Faces expert rules.\n\n@%s\n' "$CLAUDE_MD" "$CLAUDE_MD" "$INSTRUCTIONS" >> "$AGENTS_MD"
+    printf '\n## Jakarta Faces\n\n@%s\n' "$INSTRUCTIONS" >> "$AGENTS_MD"
     echo "Updated $AGENTS_MD"
 else
     echo "$AGENTS_MD already references Faces rules."
 fi
 
 echo "OpenCode configuration complete ($SCOPE scope)"
+echo ""
+echo "Note: AGENTS.md is read by OpenCode, CLAUDE.md by Claude Code."
+echo "Both reference the same rules in .claude/faces/"

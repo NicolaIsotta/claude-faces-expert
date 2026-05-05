@@ -1,5 +1,14 @@
 # Changelog
 
+## 1.2.2
+
+### OpenCode Support
+- New `install-opencode.sh` installer for [OpenCode](https://opencode.ai/) users.
+- Creates `opencode.json` with instructions reference.
+- Creates `AGENTS.md` as the primary rules file for OpenCode.
+- Wraps the existing `install.sh` to reuse `.claude/faces/` layout.
+- Supports both project scope (`./opencode.json`, `./AGENTS.md`) and user scope (`~/.config/opencode/opencode.json`, `~/.config/opencode/AGENTS.md`).
+
 ## 1.2.1
 
 ### Knowledge Base — Updated
