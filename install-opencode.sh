@@ -59,4 +59,4 @@ fi
 echo "OpenCode configuration complete ($SCOPE scope)"
 echo ""
 echo "Note: AGENTS.md is read by OpenCode, CLAUDE.md by Claude Code."
-echo "Both reference the same rules in .claude/faces/"
+echo "Both reference the same rules in $INSTRUCTIONS"
