@@ -135,6 +135,7 @@ For minimal project configuration (web.xml, taglib, directory structure), see `.
 
 - `UIInput` and `UICommand` components, and `ClientBehaviorHolder` components having `AjaxBehavior` MUST be inside `UIForm`; plain HTML `<form>` works only for GET forms with `<f:viewParam>`.
 - NEVER nest `UIForm` components; HTML does not allow nested forms in first place.
+- NEVER use `prependId="false"` on `UIForm`: it is deprecated as of Faces 5.0 (https://github.com/jakartaee/faces/issues/1972) because it breaks the contract that every `NamingContainer` namespaces its children, causing `findComponent()` and ajax `execute`/`render` references within this `UIForm` to no longer work from outside. Let Faces prepend the form ID and reference descendants with `:` separators.
 - ALWAYS add `UIMessage` to `UIInput` components, because it's needed to display any conversion/validation messages thrown by the `UIInput` component.
 - As catch-all and fallback, add `UIMessages` to bottom of form and use `redisplay="false"` to prevent redisplaying already-displayed messages; when using ajax, ensure its ID is covered by the `render`/`update`.
 - For conditionally rendered components that are ajax-updated: wrap in `<h:panelGroup>` that is always rendered, and update the wrapper ID; don't forget `layout="block"` in case it needs to render as `<div>` instead of `<span>`.
