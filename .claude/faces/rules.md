@@ -86,7 +86,7 @@ xmlns:cc="jakarta.faces.composite"
 xmlns:pt="jakarta.faces.passthrough"
 xmlns:c="jakarta.tags.core"
 ```
-Since Faces 4.0, `xmlns="http://www.w3.org/1999/xhtml"` is always implied and can be omitted (in Mojarra, using plain HTML tags doesn't anymore emit a development stage warning about unknown namespace).
+NEVER add `xmlns="http://www.w3.org/1999/xhtml"` as the default namespace on the page root in Faces 4.0+: it is implied by Facelets, adds noise to every `<html>` declaration without effect, and leaks into the rendered output. Mojarra dropped the development-stage warning about unknown HTML tags in 4.0, so the historical reason for keeping the default namespace is also gone. Use only Faces taglib namespaces (`xmlns:h=...`, `xmlns:f=...`, `xmlns:ui=...`, etc.) on the root element.
 
 JSF 2.2+ / Faces 3.0 (Java EE 7 - Jakarta EE 9):
 ```xml
@@ -117,7 +117,7 @@ For minimal project configuration (web.xml, taglib, directory structure), see `.
 - NEVER wrap the entire page in a single "god form"; use multiple smaller `UIForm` elements scoped to logical sections (e.g. search form, edit form, filter panel); a single form causes the entire component tree to be processed on every submit; components in one form can reference components in another form for `render`/`update` using absolute IDs (`:otherFormId:componentId`), but referencing them for `execute`/`process` is meaningless because only the submitted form's input values are present in the request.
 - ALWAYS use HTML5 doctype directly `<!DOCTYPE html>`, NEVER use XHTML doctype.
 - ALWAYS match XML namespace version to the project's Faces version.
-- ONLY use JSTL tags to dynamically build the view, NEVER to dynamically render the view; use the `rendered` attribute for that purpose. JSTL runs at view-build time, before component tree restoration; in JSF 1.0-2.1 this didn't interact reliably with the lifecycle, especially within `<ui:repeat>` and `@ViewScoped` beans.
+- ONLY use JSTL tags to dynamically build the view, NEVER to dynamically render the view; use the `rendered` attribute for that purpose. JSTL runs at view-build time, before component tree restoration; in JSF 1.0-2.1 this didn't interact reliably with the lifecycle, especially within `<ui:repeat>` and `@ViewScoped` beans. Because the view tree is rebuilt on every request including postbacks (see View State), JSTL tag handlers re-execute every postback — not only on the initial GET; `c:if`/`c:forEach` conditions can therefore depend on current request state, but heavy JSTL is a per-request cost.
 - ALWAYS use POST-Redirect-GET for page navigation on postback (`?faces-redirect=true`), or when no business action needs to be invoked, simply use `UIOutcomeTarget` links/buttons for direct page-to-page navigation.
 - ALWAYS put assets/templates/includes/tagfiles/composites in `/WEB-INF`, see also directory structure clue.
 - NEVER copy/duplicate existing XHTML code; ALWAYS put reusable code in a template or include file; respect DRY and KISS principles (also in Java code!).
@@ -125,6 +125,8 @@ For minimal project configuration (web.xml, taglib, directory structure), see `.
 - Once you need to parameterize an include file with more than two `<ui:param>` instances, then better convert to tag file.
 - Once you need to parameterize a whole bean or a method call on include or tagfile, then better convert to composite component.
 - Once you need to bind a whole include/tagfile containing multiple `UIInput` and/or `UICommand` components to a single custom model like `<my:tag value="#{bean.customModel}">`, then better convert to composite component.
+- Composite component definition files (under `resources/<library>/<name>.xhtml`) MUST be rooted at `<ui:component>`, NOT `<html>` with `<!DOCTYPE html>`. The composite is a *fragment* that gets spliced into a host view — wrapping it in `<html>`/DOCTYPE is completely unnecessary. Declare the Faces taglibs on the `<ui:component>` element, then put `<cc:interface>` and `<cc:implementation>` inside.
+- Inside a composite component definition file, use the prefix `cc` for the composite taglib (`xmlns:cc="jakarta.faces.composite"`). Avoid alternative prefixes (`composite`, `c`, `comp`) so composite source files are immediately recognizable across a codebase and match the spec/community convention.
 
 ### Resource Rules
 
@@ -154,7 +156,7 @@ For minimal project configuration (web.xml, taglib, directory structure), see `.
   - When the component has `action` attribute, use the method name as ID, e.g. `<h:commandButton id="save" value="Save" action="#{bean.save}">`.
   - Otherwise fall back to view ID name with optionally component name as suffix, e.g. in `employee.xhtml`: `<h:form id="employeeForm">`, `<h:panelGroup id="employeePanel">`; confirm naming with developer when unsure.
   - Make sure the component ID is unique within the context of the `NamingContainer` parent.
-- NEVER manipulate the component tree programmatically when `rendered` attribute or even when building component tree with JSTL tags suffices.
+- NEVER manipulate the component tree programmatically when `rendered` attribute or even when building component tree with JSTL tags suffices. Toggling subtrees with `rendered`/JSTL keeps the tree structure static, so it round-trips through ordinary partial state saving; components added or removed programmatically *after* the view is built (e.g. `getChildren().add(...)` in a listener, or a structural `binding`) become **dynamic components** that force Faces to full-state-save the affected subtree on every postback — markedly costlier and a frequent source of state-restore bugs.
 - NEVER use unmodifiable/internal collections (`List.of()`, `Arrays.asList()`, `Stream.toList()`) as backing value for `UISelectMany` components; Faces calls `.add()` on the collection during decode to populate it with the submitted values, which throws `UnsupportedOperationException` on unmodifiable lists. Use `new ArrayList`, `Stream.collect(Collectors.toCollection(ArrayList::new))`, etc.
 
 ### View Metadata: f:metadata, f:viewParam, f:viewAction
