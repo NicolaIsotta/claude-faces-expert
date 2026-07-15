@@ -1,5 +1,21 @@
 # Changelog
 
+## 1.2.4
+
+### Knowledge Base — Updated
+- **rules.md**:
+  - **View State**: named the `jakarta.faces.PARTIAL_STATE_SAVING` context-param as the actual PSS/FSS toggle (distinct from `STATE_SAVING_METHOD`, which selects `server` vs `client` storage); Mojarra logs a startup WARNING when set to `false`, a reliable signal that FSS is unintentionally active.
+  - **Component Rules**: new `<f:websocket>` rule — `channel`/`scope` must be literal constants (a `ValueExpression` throws `IllegalArgumentException` at view build); `user` must resolve to a `Serializable` value (not e.g. `Optional<Long>`).
+- **conversion-validation.md**:
+  - **Implicit vs Explicit**: corrected the standard by-type converter list (added `UUID`, since Faces 4.1) and noted that `java.util.Date` and the `java.time.*` types are NOT in it, so an input bound to them without `<f:convertDateTime>` throws a `ConverterException` on submit.
+  - **`<f:convertDateTime>`**: documented that `timeZone` defaults to GMT, and that `dateStyle`/`timeStyle` don't apply to partial temporals.
+  - **Common Pitfalls**: new pitfall — EL config on an attached `<f:converter>`/`<f:validator>`/`<f:convertDateTime>` is resolved only at initial view build and is NOT re-applied on postback (jakartaee/faces#1499).
+- **diagnostics.md**:
+  - **ViewExpiredException**: view-count caps are implementation-specific (no `jakarta.faces.` spec param bounds them); added Mojarra/MyFaces param names + defaults, and the Mojarra `com.sun.faces.*` → `org.glassfish.mojarra.*` prefix rename in Faces 5.x.
+- **configuration.md**:
+  - New **ProjectStage-Derived Defaults**: `FACELETS_REFRESH_PERIOD` defaults to `-1` in Production, `0` in every non-Production stage.
+  - New **Content Security Policy (Faces 5.0)**: `jakarta.faces.ENABLE_CSP_NONCE` is application-wide, default off, and toggles inline rendering of all `on*` event-handler attributes.
+
 ## 1.2.3
 
 ### Knowledge Base — Updated
