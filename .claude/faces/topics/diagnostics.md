@@ -64,7 +64,7 @@ Symptom: `jakarta.faces.application.ViewExpiredException: viewId:/page.xhtml - V
    Configure ExceptionHandler redirect.
 4. **Missing ViewState hidden field**: Check HTML source.
    Ensure JavaScript isn't removing it.
-5. **Too many tabs**: Increase `com.sun.faces.numberOfLogicalViews` (Mojarra) or `org.apache.myfaces.NUMBER_OF_VIEWS_IN_SESSION` (MyFaces).
+5. **Too many tabs / view-cache eviction**: A per-session cap on stored views evicts the oldest, so an old tab's postback can no longer be restored. These caps are **implementation-specific — there is NO `jakarta.faces.` spec param that bounds them; do not invent one.** Mojarra: `com.sun.faces.numberOfLogicalViews` and `com.sun.faces.numberOfViewsInSession` (default 15), `com.sun.faces.numberOfActiveViewMaps` (default 25). MyFaces: `org.apache.myfaces.NUMBER_OF_VIEWS_IN_SESSION` (default 20). **Mojarra renamed its context-param prefix from `com.sun.faces.*` (Faces ≤4.x) to `org.glassfish.mojarra.*` (Faces 5.x)** — same names and defaults, new prefix; match it to the running version.
 6. **Cluster without session replication**: Enable session replication (sticky sessions).
 7. **Cluster with session replication**: Put `<distributable/>` flag in `web.xml` so Servlet runtime and Faces runtime performs more aggressive session dirtying and HTTP sessions (including view scoped beans) are properly synced across servers.
 8. **Client-side state saving in cluster ("MAC did not verify")**: Client-side state is AES-encrypted.

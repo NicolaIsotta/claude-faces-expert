@@ -15,8 +15,9 @@ Both run during Process Validations (phase 3), or during Apply Request Values (p
 
 ## Implicit vs Explicit Converters
 
-- Most standard Java types have **implicit** converters that activate automatically based on the model property type: `BigDecimal`, `BigInteger`, `Boolean`, `Byte`, `Character`, `Double`, `Enum`, `Float`, `Integer`, `Long`, `Short`.
+- Most standard Java types have **implicit** converters that activate automatically based on the model property type. The complete standard by-type list is `Byte`, `Short`, `Integer`, `Long`, `Float`, `Double`, `BigDecimal`, `BigInteger`, `Character`, `Boolean`, `Enum`, and `UUID` (the last since Faces 4.1) — nothing else.
 - These require NO configuration; just bind the value to a bean property of that type and Faces handles conversion.
+- Note `java.util.Date` and the `java.time.*` types (`LocalDate`, `LocalDateTime`, etc.) are NOT in that implicit list — an input bound to such a property with no explicit `<f:convertDateTime>` renders fine (via `toString()`) but throws a normal `ConverterException` on submit, since no converter is found for the target type. ALWAYS attach `<f:convertDateTime>`.
 - Only `<f:convertNumber>` and `<f:convertDateTime>` require **explicit** registration because the desired conversion algorithm isn't necessarily obvious from the model type alone (e.g. number pattern, date format, locale).
 - **Generic collection gotcha**: EL cannot detect the parameterized type of a generic collection (`List<Integer>` returns `Object.class` from `ValueExpression#getType()`). When editing items in a collection via `<ui:repeat>` or `<h:dataTable>`, you must explicitly specify the converter:
   ```xml
@@ -48,6 +49,8 @@ Both run during Process Validations (phase 3), or during Apply Request Values (p
   - `offsetDateTime` -> `java.time.OffsetDateTime`
   - `zonedDateTime` -> `java.time.ZonedDateTime`
 - Always specify the `pattern` attribute when the end user needs to enter the value, to avoid locale-dependent ambiguity.
+- The `timeZone` attribute defaults to **`GMT`**, NOT the view locale's zone; set it explicitly whenever the displayed/parsed time must reflect a specific zone.
+- `dateStyle`/`timeStyle` (localized `FormatStyle`) apply only to full date/time types; they have no effect on partial temporals (`year`, `yearMonth`, `monthDay`), which are ISO/pattern-only.
 - Combine with HTML5 input types via pass-through attributes for native date pickers:
   ```xml
   <h:inputText id="date" a:type="date" value="#{bean.localDate}">
@@ -175,3 +178,4 @@ Validators run AFTER successful conversion. Multiple validators on a single comp
 - **Converter not invoked on `UIOutput`**: the converter is still invoked during Render Response to format the model value for display. If the output shows the raw `toString()`, check that the converter is correctly registered (e.g. `forClass` matches the exact type).
 - **`<f:validateRegex>` backslash escaping**: the number of backslashes depends on the EL implementation. Oracle EL (`com.sun.el.*`, used by Payara/WildFly/Liberty/WebLogic) needs two backslashes (`\\d`), Apache EL (`org.apache.el.*`, used by TomEE/Tomcat) needs one (`\d`). Prefer character classes like `[0-9]` over `\d` for portability.
 - **Empty string vs null**: without `INTERPRET_EMPTY_STRING_SUBMITTED_VALUES_AS_NULL=true`, empty form fields arrive as `""` instead of `null`, breaking `@NotNull` and polluting the database with empty strings.
+- **Dynamic converter/validator config is not re-applied on postback**: EL attributes on an *attached* `<f:converter>`/`<f:validator>`/`<f:convertDateTime>` (e.g. `<f:convertDateTime pattern="#{bean.pattern}">`) are resolved only when the component is FIRST built. On a component that survives postbacks, the attached-object tag handler bails out (the parent already exists), so the converter/validator is restored from state with its ORIGINAL config — toggling the bound value on a later postback has no effect (Jakarta Faces #1499). This differs from a component's own `value`/`rendered` expressions, which are stored on the component and re-evaluated every request. For genuinely dynamic conversion, read the varying value from the live model INSIDE a custom converter, not from a tag attribute. (A `<c:forEach>` body is exempt: it unrolls fresh components on every build.)

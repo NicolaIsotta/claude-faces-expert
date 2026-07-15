@@ -31,6 +31,7 @@ For detailed guidance on converters and validators, see `.claude/faces/topics/co
   - `client`: delta is Base64-encoded into the hidden field itself (no session storage needed, but larger page payloads).
 - **PSS** (Partial State Saving, since JSF 2.0): stores only the delta — efficient and the default.
 - **FSS** (Full State Saving): stores every component state including unchanged defaults — poor performance; discouraged since JSF 2.0 (when PSS became the default), deprecated since Faces 4.1 (https://github.com/jakartaee/faces/issues/1829), removal planned for Faces 6.0.
+  - PSS/FSS is toggled by the `jakarta.faces.PARTIAL_STATE_SAVING` context-param (`true` = PSS, the default; `false` = FSS). This is a DIFFERENT param from `STATE_SAVING_METHOD` above, which selects `server` vs `client` *storage*, not PSS vs FSS. Setting `PARTIAL_STATE_SAVING=false` makes Mojarra log a WARNING at startup that the param is deprecated as of Faces 4.1; seeing that warning in the logs is a reliable signal that FSS is (often unintentionally) active — remove the param to restore PSS.
 
 ## CDI and Bean Management
 
@@ -158,6 +159,7 @@ For minimal project configuration (web.xml, taglib, directory structure), see `.
   - Make sure the component ID is unique within the context of the `NamingContainer` parent.
 - NEVER manipulate the component tree programmatically when `rendered` attribute or even when building component tree with JSTL tags suffices. Toggling subtrees with `rendered`/JSTL keeps the tree structure static, so it round-trips through ordinary partial state saving; components added or removed programmatically *after* the view is built (e.g. `getChildren().add(...)` in a listener, or a structural `binding`) become **dynamic components** that force Faces to full-state-save the affected subtree on every postback — markedly costlier and a frequent source of state-restore bugs.
 - NEVER use unmodifiable/internal collections (`List.of()`, `Arrays.asList()`, `Stream.toList()`) as backing value for `UISelectMany` components; Faces calls `.add()` on the collection during decode to populate it with the submitted values, which throws `UnsupportedOperationException` on unmodifiable lists. Use `new ArrayList`, `Stream.collect(Collectors.toCollection(ArrayList::new))`, etc.
+- `<f:websocket>` (server push, Faces 2.3+): the `channel` and `scope` attributes MUST be literal constants — a `ValueExpression` (`#{...}`) on either throws `IllegalArgumentException` at view build, because the channel is the immutable client/server routing key for the connection's whole lifetime and Faces cannot prove an arbitrary expression stays constant. The `user` attribute (for targeting one user via `PushContext.send(..., user)`) MUST resolve to a `Serializable` value (e.g. `Long`, `String`); a non-`Serializable` value such as `Optional<Long>` is rejected. When OmniFaces is present, `<o:socket>` offers the same feature with more flexibility.
 
 ### View Metadata: f:metadata, f:viewParam, f:viewAction
 

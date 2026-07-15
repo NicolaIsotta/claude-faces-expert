@@ -38,6 +38,15 @@
 </servlet-mapping>
 ```
 
+## ProjectStage-Derived Defaults
+
+Some defaults depend on `jakarta.faces.PROJECT_STAGE`, so you rarely need to set them explicitly:
+- **`jakarta.faces.FACELETS_REFRESH_PERIOD`**: in `Production` the effective default is `-1` — Facelets are compiled once and cached indefinitely, never re-checked. In EVERY non-`Production` stage the default is `0` — each request re-checks the source file for changes, enabling hot reload. (Production `-1` since JSF 2.3, spec #936; non-Production `0` clarified in Faces 4.1, spec #1821.) Set it explicitly only to override this per-stage behavior.
+
+## Content Security Policy (Faces 5.0)
+
+- **`jakarta.faces.ENABLE_CSP_NONCE`** is an application-wide context-param, default **off** (no per-view override). When enabled, Faces stops rendering inline `on*` event-handler attributes (`onclick`, `onchange`, `onblur`, etc.) and instead wires the corresponding client behaviors as nonce-tagged `<script>` listeners, so a strict CSP without `unsafe-inline` can be enforced. When disabled (the default), components render inline `on*` handlers as before.
+
 ## faces-config.xml
 
 `WEB-INF/faces-config.xml` MUST minimally have this configuration:
