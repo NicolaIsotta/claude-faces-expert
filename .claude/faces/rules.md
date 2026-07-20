@@ -119,6 +119,8 @@ xmlns="http://www.w3.org/1999/xhtml"
 xmlns:h="http://java.sun.com/jsf/html"
 xmlns:f="http://java.sun.com/jsf/core"
 ```
+The prefixes above (`h`, `f`, `ui`, `cc`, `pt`, `faces`) are CONVENTION ONLY, not part of any API. Only the namespace URI binds, and a project is free to choose any prefix: `xmlns:attr="jakarta.faces.passthrough"` with `<h:inputText attr:data-foo="bar">` is exactly equivalent to the `pt:` form, and `xmlns:html="jakarta.faces.html"` makes `<html:inputText>` the same component as `<h:inputText>`. NEVER treat a prefix as the recognition pattern; resolve it to its namespace first, and recognise any prefix bound to a Faces namespace.
+
 Use the namespace version matching the project's Faces version.
 Check `pom.xml` dependencies or `faces-config.xml` version to determine which version is in use.
 If the `faces-config.xml` exists and its version is outdated as compared to `pom.xml`, then ALWAYS confirm with developer before catching up.
@@ -148,13 +150,17 @@ For minimal project configuration (web.xml, taglib, directory structure), see `.
 
 ### Passthrough Elements
 
-- Decoration is triggered by the NAMESPACE `jakarta.faces` (or legacy `http://xmlns.jcp.org/jsf`), never by the prefix. The prefix is free: `faces:` is the documented one since Faces 4.0, `jsf:` is the JSF 2.x convention, and `xmlns:jf="jakarta.faces"` with `jf:id` works identically. Recognise any prefix bound to that namespace.
+- Both markup styles are valid and neither is more correct: plain Faces components (`<h:inputText>`), or passthrough elements (`<input type="text" faces:value="#{bean.value}">`). DETECT which style a project already uses and follow it; do not mix them arbitrarily within a view. Default to plain Faces components when a project has no established style, as they cover every component, have VDL and IDE support, and are what error messages name.
+- The trade-off: a plain component needs the `jakarta.faces.passthrough` namespace for any attribute it does not emit itself (anything not in its VDL — `role`, `data-*`, `aria-*`, `autofocus`, ...), whereas a passthrough element takes any attribute directly but degrades silently to static HTML once its last `faces:` attribute is removed.
+- Decoration is triggered by the NAMESPACE `jakarta.faces` (or legacy `http://xmlns.jcp.org/jsf`), never by the prefix — see "XML Namespaces" above. `faces:` is the documented prefix since Faces 4.0 and `jsf:` the JSF 2.x convention, but any prefix bound to that namespace decorates identically.
 - An HTML element is decorated only if it carries at least one attribute in that namespace. Removing the last one while editing silently degrades it to static HTML — a `<form faces:id>` that loses its `faces:id` still renders, but posts nowhere.
 - Such an attribute on an element in any namespace other than the empty one or XHTML throws `FaceletException`; the namespace is empty when the page does not declare `xmlns="http://www.w3.org/1999/xhtml"`, which is the recommended form (see "XML Namespaces").
 - `<a>` is ambiguous and resolves by attribute: `faces:action`/`faces:actionListener` -> `h:commandLink`, `faces:value` -> `h:outputLink`, `faces:outcome` -> `h:link`. `<button>` -> `h:button` when `faces:outcome` is present, else `h:commandButton`.
 - For `<input>` and `<select>`, the `name` attribute is used as the component id when no id attribute is given.
 - An element with no specific mapping becomes `faces:element`, which renders its own tag name.
 - The result is a real component, so every rule below applies to it: `<form faces:id>` IS a `UIForm`, and `<a faces:action>` IS a `UICommand` that MUST be inside one.
+- The mapping is fixed, so a few components have no passthrough element form: `<select>` yields only `h:selectOneListbox`/`h:selectManyListbox` (never `h:selectOneMenu`), `<input type="radio">` falls through the `type="*"` catch-all to `h:inputText` and silently loses radio group semantics, and `h:message`/`h:messages` have no element form at all. Use the `h:` tag for those. Tags which render no markup of their own (`ui:repeat`, `f:ajax`, `ui:fragment`) need no element form and compose with either style, so `<table>` + `<ui:repeat>` is the HTML-first equivalent of `h:dataTable`.
+- NEVER use the legacy Facelets `jsfc` attribute (`<span jsfc="ui:repeat" value="...">`), which replaces the host element with any tag from any declared namespace and therefore does cover the gaps above. It is NOT part of the Jakarta Faces specification — Facelets heritage that Mojarra and MyFaces merely happen to still carry, with no VDL documentation and no TCK coverage, so nothing stops it from being removed or repurposed in a future version. ALWAYS prefer a plain Faces component or a passthrough element.
 
 ### Component Rules
 

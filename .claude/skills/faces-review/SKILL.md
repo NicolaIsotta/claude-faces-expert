@@ -29,6 +29,12 @@ Then hold every suggestion to the runtime version:
 - Verify an API before recommending it, against the sources listed under "References" in `.claude/faces/rules.md`, using the set for the detected runtime version — this skill has no web access, so delegate the lookup to an `Agent`. If it cannot be verified, do not recommend it; report the API as unconfirmed instead.
 - A genuinely useful newer API may be mentioned only as `info` severity, explicitly labelled with the version that introduces it and the fact that it requires an upgrade. It is never an `error` or `warning`.
 
+Finally, establish the project's MARKUP STYLE the same way — plain Faces components (`<h:inputText>`) or passthrough elements (`<input type="text" faces:value="...">`) — by taking the dominant one across the `.xhtml` files. Both are valid; see "Passthrough Elements" in `.claude/faces/rules.md`. When there is no dominant style, as in a new or empty project, default to plain Faces components.
+
+- Write every suggestion in the detected style. Do not nudge a project toward the other one.
+- Report a view that mixes both as `info`, never as `error` or `warning`.
+- NEVER propose a wholesale conversion from one style to the other, and never as a "modernisation". Some components have no passthrough element form at all, so such a conversion can only ever be partial, which is worse than either style consistently applied.
+
 ## Step 2: Review Checklist
 
 ### XHTML / Facelets
