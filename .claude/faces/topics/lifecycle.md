@@ -77,7 +77,7 @@ A `PhaseListener` intercepts lifecycle phases for cross-cutting concerns.
 - `getPhaseId()` returns which phase to listen to, or `PhaseId.ANY_PHASE` for all.
 - Common use cases: logging, authorization checks, locale/theme switching.
 - Prefer `<f:viewAction>` over PhaseListener for page-specific logic.
-- Prefer CDI `@Observes` with Faces events over PhaseListener for global logic (since Faces 2.3).
+- Prefer CDI `@Observes` with Faces events over PhaseListener for global logic (only available since Faces 5.0).
 
 ## Why This Matters
 

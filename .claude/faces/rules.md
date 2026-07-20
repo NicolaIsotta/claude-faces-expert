@@ -13,6 +13,17 @@ For detailed guidance on specific topics, read the relevant `.claude/faces/topic
 - Use "Faces" when speaking generically; use "JSF" only when referring specifically to pre-3.0 versions.
 - The `javax.faces.` package applies to JSF 1.0-2.3 only; the `jakarta.faces.` package applies to Faces 3.0+.
 
+### Version Discipline
+
+A project has TWO Faces versions; establish both before writing or reviewing.
+
+- **Runtime version** — from the artifact supplying the API (`jakarta.faces-api`, the Mojarra/MyFaces implementation, the platform BOM, or the server). Governs which APIs EXIST. Never propose an API newer than it.
+- **Declared version** — the `version` and `xsi:schemaLocation` of `faces-config.xml`. Each `web-facesconfig_*.xsd` enumerates only its own version, so it caps the API features usable in that descriptor whatever the runtime. It can lag the runtime; that deploys fine and is not an error, but bump it to match.
+- The two are independent: a 4.0 `faces-config.xml` does not make 4.1 APIs unavailable, and bumping it does not make newer APIs appear.
+- `web.xml` and `beans.xml` likewise declare the Servlet resp. CDI version, each read from the artifact supplying that API. Only a full Jakarta EE server implies all three from one platform version; on a servlet container they are independent.
+- Untagged rules in this knowledge base apply to Faces 4.0+; honour inline version tags such as "since Faces 5.0".
+- Do NOT infer that a qualifier, annotation, or method exists because a symmetric one does — several Faces event APIs are deliberately asymmetric.
+
 ## Life Cycle
 
 For a detailed explanation of the request processing lifecycle, see `.claude/faces/topics/lifecycle.md`.
@@ -52,11 +63,12 @@ For detailed guidance on converters and validators, see `.claude/faces/topics/co
 
 ### System Events and Phase Listeners
 
-- Since Faces 4.0, prefer CDI `@Observes` over `<f:event>`, `SystemEventListener`, or `PhaseListener` registrations in `faces-config.xml`.
-- Phase events: `void onAfterRestoreView(@Observes @AfterPhase(RESTORE_VIEW) PhaseEvent event)`; available qualifiers are `@BeforePhase`/`@AfterPhase` with `PhaseId` enum constants.
-- System events: `void onPreRenderView(@Observes @PreRenderView ComponentSystemEvent event)`; qualifiers exist in `jakarta.faces.event` for all standard system events (`@PostConstructApplication`, `@PreDestroyApplication`, `@PreRenderView`, `@PostAddToView`, etc.).
-- `<f:event type="preRenderView" listener="#{bean.init}">` is still supported but legacy; the CDI form is the modern preferred form.
-- For initialization that must happen on every view render (including ajax), use `@Observes @PreRenderView` on a `@ViewScoped` bean, or `<f:viewAction action="#{bean.init}">` for GET-only initialization.
+- Since Faces 5.0, prefer CDI `@Observes` over `<f:event>` registrations in view, and `SystemEventListener` or `PhaseListener` registrations in `faces-config.xml`.
+- Phase events: `void onAfterRestoreView(@Observes @AfterPhase(RESTORE_VIEW) PhaseEvent event)`; available qualifiers are `@BeforePhase`/`@AfterPhase` with `PhaseId` enum constants. `PhaseId` value defaults to `ANY_PHASE`.
+- System events: `void onPreRenderView(@Observes PreRenderViewEvent event)`. There are no per-event qualifiers; `@PreRenderView` does not exist.
+- Dispatch covers every system event whose source is NOT a `UIComponent` other than `UIViewRoot` — so application-, `Flash`- and `UIViewRoot`-sourced events (including `PostRenderViewEvent`) are observable. Component-sourced events (`PostAddToViewEvent`, `PreRenderComponentEvent`, `Pre`/`PostValidateEvent`, ...) are skipped; use `<f:event>` or `@ListenerFor` for those.
+- Narrow a `UIViewRoot`-sourced event with `@View("/exact.xhtml")` (`jakarta.faces.annotation.View`). It is fired with the exact view id, so wildcard patterns never match despite what `View`'s javadoc implies.
+- For GET-only initialization, use `<f:viewAction action="#{bean.onload}">`, not `<f:event type="preRenderView" listener="#{bean.onload}">` nor `@Observes PreRenderViewEvent`.
 
 ### Scope Selection
 
@@ -211,10 +223,34 @@ When this project includes OmniFaces, or the developer wants to simplify code, c
 
 ## References
 
-- API source code: https://github.com/jakartaee/faces
-- Mojarra (impl) source code: https://github.com/eclipse-ee4j/mojarra
-- MyFaces (impl) source code: https://github.com/apache/myfaces
+Always consult the set matching the project's runtime version, not merely the newest.
+
+Source code (all versions, select the branch for the version at hand):
+
+- API + spec: https://github.com/jakartaee/faces
+- Mojarra (impl): https://github.com/eclipse-ee4j/mojarra
+- MyFaces (impl): https://github.com/apache/myfaces
+
+### Faces 4.0 (Jakarta EE 10)
+
+- Spec: https://jakarta.ee/specifications/faces/4.0/jakarta-faces-4.0
+- Java API: https://jakarta.ee/specifications/faces/4.0/apidocs/
+- VDL (tag docs): https://jakarta.ee/specifications/faces/4.0/vdldoc/
+- JS API: https://jakarta.ee/specifications/faces/4.0/jsdoc/
+
+### Faces 4.1 (Jakarta EE 11)
+
 - Spec: https://jakarta.ee/specifications/faces/4.1/jakarta-faces-4.1
 - Java API: https://jakarta.ee/specifications/faces/4.1/apidocs/
 - VDL (tag docs): https://jakarta.ee/specifications/faces/4.1/vdldoc/
 - JS API: https://jakarta.ee/specifications/faces/4.1/jsdoc/
+
+### Faces 5.0 (Jakarta EE 12, in progress)
+
+Unreleased — there is no published spec, javadoc or VDL doc. Read the source instead:
+
+- API + spec: https://github.com/jakartaee/faces, branch `5.0` (spec asciidoc under `spec/src/main/asciidoc`, API under `api/src/main/java`, XSDs under `api/src/main/xsd`, TCK under `tck/faces50`)
+- Mojarra: https://github.com/eclipse-ee4j/mojarra, branch `master`
+- MyFaces: https://github.com/apache/myfaces, branch `main`
+
+An API present on these branches is NOT available to a project on 4.x; see "Version Discipline".

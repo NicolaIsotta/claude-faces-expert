@@ -10,14 +10,31 @@ allowed-tools: Read, Glob, Grep, Agent
 
 Review the Jakarta Faces code in `$ARGUMENTS` (if no argument, scan the project for `.xhtml` and backing bean files) against the rules in `.claude/faces/rules.md` and its topic files.
 
-## Review Checklist
+## Step 1: Determine the Faces Version
+
+Before reviewing anything, establish BOTH Faces versions — they are not per definition the same. See "Version Discipline" in `.claude/faces/rules.md`.
+
+**Runtime version** (which APIs exist), in this order:
+
+1. An explicit `jakarta.faces-api`/`javax.faces` dependency, or a bundled Faces implementation (`org.glassfish:jakarta.faces` for Mojarra up to 4.x, `org.glassfish.mojarra:mojarra` for Mojarra 5.0+, `org.apache.myfaces.core:myfaces-impl` for MyFaces) — whose major.minor tracks the Faces version it implements.
+2. Otherwise the `jakarta.jakartaee-api`/`jakarta.jakartaee-web-api` version, mapped via the version lineage in `.claude/faces/rules.md` (full Jakarta EE server only).
+3. Otherwise the target application server, or as a last resort the XML namespaces used in the `.xhtml` files.
+
+**Declared version** (which descriptor schema applies): the `version` attribute and `xsi:schemaLocation` of `faces-config.xml` — see the Configuration checklist below.
+
+State both at the top of the report, with how each was detected. If the runtime version cannot be determined, say so and assume the most recent RELEASED version (Faces 4.1) — never assume an unreleased one. Never substitute the declared version for the runtime version.
+
+Then hold every suggestion to the runtime version:
+
+- Verify an API before recommending it, against the sources listed under "References" in `.claude/faces/rules.md`, using the set for the detected runtime version — this skill has no web access, so delegate the lookup to an `Agent`. If it cannot be verified, do not recommend it; report the API as unconfirmed instead.
+- A genuinely useful newer API may be mentioned only as `info` severity, explicitly labelled with the version that introduces it and the fact that it requires an upgrade. It is never an `error` or `warning`.
+
+## Step 2: Review Checklist
 
 ### XHTML / Facelets
 - XML namespaces match the project's Faces version.
 - HTML5 doctype `<!DOCTYPE html>` is used, not XHTML doctype.
-- No "god form" (single form wrapping entire page); forms are scoped to logical sections.
-- No nested `UIForm` components.
-- `UIInput` and `UICommand` components are inside `UIForm`.
+- No "god form", no nested `UIForm`, and `UIInput`/`UICommand` components are inside a `UIForm` — see "Component Rules" in `.claude/faces/rules.md`.
 - Every `UIInput` has a corresponding `UIMessage`.
 - A catch-all `UIMessages` with `redisplay="false"` exists in each view; when using ajax, its ID is covered by `render`/`update`.
 - Conditionally rendered components that are ajax-updated are wrapped in an always-rendered container, and ajax updates target the wrapper ID.
@@ -32,21 +49,21 @@ Review the Jakarta Faces code in `$ARGUMENTS` (if no argument, scan the project 
 - File download commands do not use ajax (or use `<p:fileDownload>` if PrimeFaces).
 
 ### Backing Beans
-- `@Named` is used with a CDI scope annotation (not `@ManagedBean`, not missing scope).
-- `@ViewScoped` is imported from `jakarta.faces.view` (or `javax.faces.view`), not from `jakarta.enterprise.context` or `javax.faces.bean`.
-- Beans stored in `HttpSession` (`@ViewScoped`, `@SessionScoped`, `@ConversationScoped`, `@FlowScoped`, `@ClientWindowScoped`) implement `Serializable`.
-- Initial state is loaded in `@PostConstruct`, not in constructors, field initializers, or getters.
-- Getters are pure (no business logic, no lazy-loading, no side effects).
+- Bean declaration, scope choice, `Serializable`, `@PostConstruct` initialization and getter purity all follow "CDI and Bean Management" and "Scope Selection" in `.claude/faces/rules.md`.
 - `UISelectMany` backing properties use mutable collections (`new ArrayList`), not `List.of()`, `Arrays.asList()`, or `Stream.toList()`.
 - `action` methods are used for business logic; `actionListener` is only used to prepare/gate the action.
-- Scope matches usage: `@RequestScoped` for simple non-ajax forms, `@ViewScoped` for ajax forms/datatables, `@ApplicationScoped` for shared caches (must be thread-safe).
+- Event listeners use a mechanism that exists in the detected version — see the "System Events and Phase Listeners" section in `.claude/faces/rules.md`.
 
 ### Configuration (if accessible)
 - `web.xml` has `FACELETS_SKIP_COMMENTS` set to `true`.
 - `web.xml` has `INTERPRET_EMPTY_STRING_SUBMITTED_VALUES_AS_NULL` set to `true`.
 - `WEBAPP_RESOURCES_DIRECTORY`: when the resources directory contains composite components (`.xhtml` files), it MUST be set to `WEB-INF/resources` to prevent direct client access to composite component source code; for plain assets only (scripts, styles, images, fonts) it's merely a recommendation.
 - FacesServlet is mapped to `*.xhtml` only (no legacy `*.jsf`, `*.faces`, `/faces/*`).
-- `faces-config.xml` version matches `pom.xml` Faces dependency version.
+- Each deployment descriptor declares the version of ITS OWN specification — not the Jakarta EE platform version — and should match the API version the runtime actually supplies. A lagging declaration caps the available API features to that older version and should be bumped (`warning` if it lags, not an error — it deploys fine). Check the `version` attribute AND the `xsi:schemaLocation`, since bumping only one is the usual half-fix:
+  - `faces-config.xml` -> Jakarta Faces API version, from `jakarta.faces-api` or the bundled Mojarra/MyFaces implementation.
+  - `web.xml` -> Jakarta Servlet API version, from `jakarta.servlet-api` or the servlet container.
+  - `beans.xml` -> Jakarta CDI API version, from `jakarta.enterprise.cdi-api` or the bundled Weld/OpenWebBeans; an empty or absent `beans.xml` is valid and needs no bump.
+  - Take each version from the artifact that supplies that API; only on a full Jakarta EE server may they be derived from the platform version. Verify rather than assume the three move together.
 
 ### PrimeFaces (if present)
 - Consult `.claude/faces/topics/primefaces.md` and check its rules.
@@ -54,12 +71,14 @@ Review the Jakarta Faces code in `$ARGUMENTS` (if no argument, scan the project 
 ### OmniFaces (if present)
 - Consult `.claude/faces/topics/omnifaces.md` and check for opportunities to simplify code.
 
-## Output Format
+## Step 3: Output Format
+
+Open the report with the detected Faces version and how it was detected.
 
 For each finding, report:
 1. **File and line** — the location.
 2. **Rule violated** — short description of which rule.
 3. **Severity** — error (will cause bugs), warning (anti-pattern/risk), or info (improvement opportunity).
-4. **Fix** — concrete suggestion.
+4. **Fix** — concrete suggestion, using only APIs available in the detected version. If the fix depends on a newer version, say which version and mark the finding `info`.
 
 Group findings by file. If no issues are found, confirm the code follows Faces best practices.
