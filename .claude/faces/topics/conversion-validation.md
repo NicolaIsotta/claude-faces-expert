@@ -66,7 +66,8 @@ Both run during Process Validations (phase 3), or during Apply Request Values (p
   - `value="entityConverter"`: activates **explicitly** via `converter="entityConverter"` in the view.
   - `forClass` takes precedence when both the type matches and an explicit converter ID is absent.
 - **CDI injection** (`@Inject`) in converters:
-  - JSF 2.3: requires `managed=true` on `@FacesConverter`.
+  - JSF 2.3 through Faces 4.1: requires `managed=true` on `@FacesConverter`; without it the converter is not CDI managed and every injected field stays null.
+  - Faces 5.0: all converters are CDI managed, so injection works unconditionally and the `managed` attribute is deprecated for removal and ignored. Keep it on code that must also run on 4.x, where it is still load-bearing.
 - `getAsString()` must return `""` (empty string) for null objects, not `null`.
 - `getAsObject()` must return `null` for null/empty strings, not throw an exception.
 - On conversion failure, throw `ConverterException(new FacesMessage(...))`.
@@ -168,7 +169,7 @@ Validators run AFTER successful conversion. Multiple validators on a single comp
 
 - Implement `jakarta.faces.validator.Validator<T>` with `validate(FacesContext, UIComponent, T value)`.
 - Register with `@FacesValidator("validatorId", managed=true)`.
-- CDI injection (`@Inject`) requires `managed=true` on `@FacesValidator`, same as for converters.
+- CDI injection (`@Inject`) requires `managed=true` on `@FacesValidator` up to Faces 4.1, and is unconditional in Faces 5.0 where the attribute is deprecated for removal and ignored — same as for converters.
 - On validation failure, throw `ValidatorException(new FacesMessage(...))`.
 - Activate in view via `validator="validatorId"` attribute or nested `<f:validator validatorId="...">` tag.
 

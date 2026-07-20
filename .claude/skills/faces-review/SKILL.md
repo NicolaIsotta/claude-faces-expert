@@ -37,6 +37,27 @@ Finally, establish the project's MARKUP STYLE the same way — plain Faces compo
 
 ## Step 2: Review Checklist
 
+For every non-trivial construct, ask in this order: (1) is it still needed, or does a built-in already do this? (2) is the mechanism available in the detected runtime version? (3) is it implemented correctly? Report at the highest level that fires and stop — NEVER propose modernising something you would delete.
+
+### Superseded Constructs
+
+Hand-rolled code that a built-in has since replaced. Report `info` when it merely duplicates the built-in, `warning` when the hand-rolled version has a defect the built-in does not. The replacement MUST exist in the detected runtime version. Suggest a plain Faces replacement; only propose an OmniFaces one when the project already depends on OmniFaces.
+
+| Hand-rolled | Built-in | Since |
+|---|---|---|
+| `PhaseListener` shuttling `FacesMessage`s through the session to survive a redirect | navigation from `<f:viewAction>`, which keeps them automatically; else `Flash.setKeepMessages(true)` at the redirecting call site | 2.2 |
+| `immediate="true"` on an ajax `UICommand` to skip input processing | `<f:ajax>` — `execute` already defaults to `@this` | 2.0 |
+| `isPostback()` guard in `@PostConstruct` for GET-only initialization | `<f:viewAction>` | 2.2 |
+| Custom converter for a standard type | implicit converters (incl. `UUID` since 4.1) | varies |
+| `Application.evaluateExpressionGet()` calls | `@Inject @ManagedProperty` | 2.3 |
+| Hand-rolled server push (one-way, server to client) | `<f:websocket>`/`<o:socket>`, or `<o:sse>` | Faces 2.3 / OmniFaces 5.2 |
+
+A `PhaseListener` calling `Flash.setKeepMessages(true)` on every postback is not a fix for the first row: the flash saves the messages whether or not the response is a redirect, so they are rendered again on the next request and keep echoing forward. A `NavigationHandler` decorator checking `NavigationCase.isRedirect()` is sound but is global machinery for a rare case.
+
+Two notes on `immediate="true"`. On a non-ajax command it is still the mechanism, but ask first whether the command should be ajax at all — converting it drops the need entirely, and only a command that genuinely must not use ajax (e.g. a file download) is left needing it. On a `UIInput` it means something else entirely — conversion and validation move to Apply Request Values — so it must never be stripped mechanically.
+
+Because these findings are the most prone to false positives, each one MUST state what the built-in covers and confirm nothing else is lost. If the construct does more than the built-in, report `info` naming the difference — never as a fix-this.
+
 ### XHTML / Facelets
 - XML namespaces match the project's Faces version.
 - HTML5 doctype `<!DOCTYPE html>` is used, not XHTML doctype.
