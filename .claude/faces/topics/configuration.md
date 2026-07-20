@@ -1,6 +1,6 @@
 # Minimal Faces Configuration
 
-*Version 1.2.5*
+*Version 1.3.0*
 
 ## web.xml
 

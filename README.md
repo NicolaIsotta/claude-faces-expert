@@ -1,6 +1,6 @@
 # Claude Faces Expert
 
-*Version 1.2.5*
+*Version 1.3.0*
 
 Drop-in Jakarta Faces knowledge base for [Claude Code](https://claude.com/claude-code).
 Makes Claude Code more aware of Jakarta Faces (formerly JSF) best practices, common pitfalls, and diagnostic decision trees.
@@ -136,7 +136,7 @@ Supported migration paths:
 
 ## Covers
 
-- Jakarta Faces 1.0 through 4.1 (JSF and Faces)
+- Jakarta Faces 1.0 through 4.1 (JSF and Faces), plus the in-progress Faces 5.0 — tracked as unreleased, so its APIs are never proposed for a 4.x project
 - PrimeFaces component library
 - OmniFaces utility library
 - View state internals (PSS vs FSS, server vs client, delta mechanics)
