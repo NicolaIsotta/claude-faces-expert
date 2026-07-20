@@ -16,6 +16,8 @@
 ### Knowledge Base — Added
 - **rules.md**:
   - **References**: split per Faces version, with spec, javadoc, VDL and JS API links for 4.0 and 4.1, so the set matching the project's runtime version can be picked instead of whichever is newest. Faces 5.0 is unreleased and has no published docs, so it points at the source repos with their branch names (`5.0`, `master`, `main`) and the relevant paths within `jakartaee/faces`.
+  - New **Passthrough Elements** section: decoration is triggered by the `jakarta.faces` namespace and never by the prefix (`faces:` since 4.0, `jsf:` in JSF 2.x, or any other prefix bound to it); an element is decorated only if it carries at least one such attribute (removing the last one silently degrades it to static HTML); one on an element outside the empty or XHTML namespace throws `FaceletException`; `<a>`/`<button>` resolve by attribute; `name` doubles as the id for `<input>`/`<select>`; unmapped elements become `faces:element`. Decorated elements are real components, so `<a faces:action>` is a `UICommand` that must be inside a `UIForm` (#4).
+  - **Component Rules**: the "must be inside `UIForm`" rule now calls out decorated elements explicitly, since they are easy to overlook when splitting a large form (#4).
   - New **Version Discipline** section: a project has two independent Faces versions — the *runtime* version, which governs which APIs exist, and the *declared* version (`faces-config.xml` `version` + `xsi:schemaLocation`), which caps the API features usable in that descriptor since each `web-facesconfig_*.xsd` enumerates only its own version. `web.xml`/`beans.xml` likewise declare the Servlet resp. CDI version. Also: untagged rules apply to Faces 4.0+; do not infer an API exists because a symmetric one does.
 
 ### Skills — Updated
@@ -26,6 +28,7 @@
   - New **Backing Beans** check: event listeners must use a mechanism that exists in the detected version.
   - Checklist items already covered by `.claude/faces/rules.md` collapsed into pointers to the relevant section ("Component Rules" for form nesting, "CDI and Bean Management" + "Scope Selection" for bean declaration, scope, `Serializable`, `@PostConstruct` and getter purity) instead of restating them.
   - **Configuration**: replaced the `faces-config.xml`-only version check with a check across `faces-config.xml`, `web.xml` and `beans.xml`, each matched against the API version the runtime supplies for ITS OWN specification (Faces, Servlet, CDI respectively — not the Jakarta EE platform version), covering the `version` attribute *and* the `xsi:schemaLocation`, reported as `warning` when lagging.
+  - New **Step 3: Validate Proposed Fixes** — a fix that restructures markup must be re-checked against the rest of the checklist before being reported. For form-boundary changes, enumerate every `ActionSource` and `EditableValueHolder` in the region first, then draw the boundary so each still has a `UIForm` ancestor, watching for those in headers, toolbars, `ui:fragment`/`ui:include` and for decorated elements (#4).
   - **Output Format**: the report opens with the detected versions and each fix is constrained to the runtime version.
 
 ## 1.2.4

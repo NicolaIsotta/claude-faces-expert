@@ -71,7 +71,13 @@ Then hold every suggestion to the runtime version:
 ### OmniFaces (if present)
 - Consult `.claude/faces/topics/omnifaces.md` and check for opportunities to simplify code.
 
-## Step 3: Output Format
+## Step 3: Validate Proposed Fixes
+
+A fix that resolves one finding must not introduce another. Before reporting any fix that restructures markup — moving, splitting or wrapping elements — re-check the result against the rest of the checklist.
+
+For form-boundary changes in particular: enumerate every `ActionSource` and `EditableValueHolder` in the affected region FIRST, then draw the boundary so each one still has a `UIForm` ancestor afterwards. Watch for those sitting outside the visual body of a section — in headers, toolbars, `ui:fragment` or `ui:include` — and for decorated elements such as `<a faces:action>`, which do not look like Faces components.
+
+## Step 4: Output Format
 
 Open the report with the detected Faces version and how it was detected.
 

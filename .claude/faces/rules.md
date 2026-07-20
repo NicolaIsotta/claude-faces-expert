@@ -146,9 +146,19 @@ For minimal project configuration (web.xml, taglib, directory structure), see `.
 - ALWAYS put assets (scripts, styles, images, icons, fonts) in their own subfolder in `/WEB-INF/resources` and reference via `<h:outputScript name="...">`, `<h:outputStylesheet name="...">`, `<h:graphicImage name="...">`, `#{resource[name]}`. NOTE: `/WEB-INF/resources` is NOT the default location (the default is `<webroot>/resources`); using it requires `<context-param>jakarta.faces.WEBAPP_RESOURCES_DIRECTORY=/WEB-INF/resources</context-param>` in `web.xml` — already part of the recommended minimal `web.xml` (see `.claude/faces/topics/configuration.md`). Storing assets under `/WEB-INF` prevents direct HTTP access to composite component sources and other internals.
 - NEVER use inline styles; ALWAYS either put it in a separate CSS file or use an existing CSS framework such as Bootstrap, PrimeFlex, Tailwind, etc; in case project has no such CSS framework, ALWAYS ask the developer first which one to pick.
 
+### Passthrough Elements
+
+- Decoration is triggered by the NAMESPACE `jakarta.faces` (or legacy `http://xmlns.jcp.org/jsf`), never by the prefix. The prefix is free: `faces:` is the documented one since Faces 4.0, `jsf:` is the JSF 2.x convention, and `xmlns:jf="jakarta.faces"` with `jf:id` works identically. Recognise any prefix bound to that namespace.
+- An HTML element is decorated only if it carries at least one attribute in that namespace. Removing the last one while editing silently degrades it to static HTML — a `<form faces:id>` that loses its `faces:id` still renders, but posts nowhere.
+- Such an attribute on an element in any namespace other than the empty one or XHTML throws `FaceletException`; the namespace is empty when the page does not declare `xmlns="http://www.w3.org/1999/xhtml"`, which is the recommended form (see "XML Namespaces").
+- `<a>` is ambiguous and resolves by attribute: `faces:action`/`faces:actionListener` -> `h:commandLink`, `faces:value` -> `h:outputLink`, `faces:outcome` -> `h:link`. `<button>` -> `h:button` when `faces:outcome` is present, else `h:commandButton`.
+- For `<input>` and `<select>`, the `name` attribute is used as the component id when no id attribute is given.
+- An element with no specific mapping becomes `faces:element`, which renders its own tag name.
+- The result is a real component, so every rule below applies to it: `<form faces:id>` IS a `UIForm`, and `<a faces:action>` IS a `UICommand` that MUST be inside one.
+
 ### Component Rules
 
-- `UIInput` and `UICommand` components, and `ClientBehaviorHolder` components having `AjaxBehavior` MUST be inside `UIForm`; plain HTML `<form>` works only for GET forms with `<f:viewParam>`.
+- `UIInput` and `UICommand` components, and `ClientBehaviorHolder` components having `AjaxBehavior` MUST be inside `UIForm`; plain HTML `<form>` works only for GET forms with `<f:viewParam>`. This includes decorated elements such as `<a faces:action>` and `<button faces:action>`, which are easy to overlook when splitting a large form because they do not look like Faces components.
 - NEVER nest `UIForm` components; HTML does not allow nested forms in first place.
 - NEVER use `prependId="false"` on `UIForm`: it is deprecated as of Faces 5.0 (https://github.com/jakartaee/faces/issues/1972) because it breaks the contract that every `NamingContainer` namespaces its children, causing `findComponent()` and ajax `execute`/`render` references within this `UIForm` to no longer work from outside. Let Faces prepend the form ID and reference descendants with `:` separators.
 - ALWAYS add `UIMessage` to `UIInput` components, because it's needed to display any conversion/validation messages thrown by the `UIInput` component.
