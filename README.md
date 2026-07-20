@@ -45,7 +45,7 @@ From your project root, run:
 curl -sL https://raw.githubusercontent.com/omnifaces/claude-faces-expert/main/install.sh | sh
 ```
 
-This copies the knowledge base and slash commands into `./.claude/`, and adds the `@.claude/faces/rules.md` reference to your project's `CLAUDE.md` (creates it if needed). To update later, re-run the same command.
+This copies the knowledge base and slash commands into `./.claude/`, and adds the `@.claude/faces/rules.md` reference to your project's `CLAUDE.md` (creates it if needed).
 
 ### User scope (applies to all projects)
 
@@ -95,6 +95,12 @@ curl -sL https://raw.githubusercontent.com/omnifaces/claude-faces-expert/main/in
 ```
 
 This installs into `~/.claude/` and `~/.config/opencode/`, applying the rules to all projects.
+
+## Updating
+
+Updating is the same as installing: re-run whichever install command you originally used (project, user, or OpenCode). It is idempotent — the knowledge base and slash commands are overwritten with the latest version, and `CLAUDE.md` is left untouched because the reference line is already there.
+
+Your installed version is in the header of `.claude/faces/rules.md` (or `~/.claude/faces/rules.md` for user scope); compare it against [CHANGELOG.md](CHANGELOG.md).
 
 ## How it Works
 
