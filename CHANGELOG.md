@@ -1,5 +1,33 @@
 # Changelog
 
+## 1.2.5
+
+### Knowledge Base — Fixed
+- **rules.md**:
+  - **System Events and Phase Listeners**: the whole section described Faces 5.0 features as available "since Faces 4.0", causing reviews of Faces 4.x projects to recommend APIs that don't exist yet (#3). CDI `@Observes` support for system events (jakartaee/faces#1501) and phase events (jakartaee/faces#1443) is now correctly gated to Faces 5.0.
+  - **System Events and Phase Listeners**: the recommended idiom for system events was wrong in every version — there are no per-event qualifier annotations (`@Observes @PreRenderView` does not exist). `Application.publishEvent()` fires the event instance itself, so the event CLASS is observed: `@Observes PreRenderViewEvent`.
+  - **System Events and Phase Listeners**: documented which system events the CDI dispatch actually covers — every event whose source is not a `UIComponent` other than `UIViewRoot` (application-, `Flash`- and `UIViewRoot`-sourced); events sourced on an individual component (`PostAddToViewEvent`, `PreRenderComponentEvent`, `Pre`/`PostValidateEvent`, ...) are skipped and not observable via CDI.
+  - **System Events and Phase Listeners**: documented the `@View` qualifier for narrowing a view-sourced system event, including that it is fired with the exact view id so wildcard patterns do not match.
+  - **System Events and Phase Listeners**: the GET-only initialization rule recommended the non-existent `@Observes @PreRenderView`; it now prescribes `<f:viewAction>` and explicitly rejects both `<f:event type="preRenderView">` and `@Observes PreRenderViewEvent` for that case.
+  - **System Events and Phase Listeners**: noted that the `PhaseId` value of `@BeforePhase`/`@AfterPhase` defaults to `ANY_PHASE`.
+- **lifecycle.md**:
+  - **PhaseListener**: corrected "prefer CDI `@Observes` over PhaseListener (since Faces 2.3)" to Faces 5.0.
+
+### Knowledge Base — Added
+- **rules.md**:
+  - **References**: split per Faces version, with spec, javadoc, VDL and JS API links for 4.0 and 4.1, so the set matching the project's runtime version can be picked instead of whichever is newest. Faces 5.0 is unreleased and has no published docs, so it points at the source repos with their branch names (`5.0`, `master`, `main`) and the relevant paths within `jakartaee/faces`.
+  - New **Version Discipline** section: a project has two independent Faces versions — the *runtime* version, which governs which APIs exist, and the *declared* version (`faces-config.xml` `version` + `xsi:schemaLocation`), which caps the API features usable in that descriptor since each `web-facesconfig_*.xsd` enumerates only its own version. `web.xml`/`beans.xml` likewise declare the Servlet resp. CDI version. Also: untagged rules apply to Faces 4.0+; do not infer an API exists because a symmetric one does.
+
+### Skills — Updated
+- **faces-review**:
+  - New **Step 1: Determine the Faces Version** — detect the *runtime* version (Faces API or implementation artifact, else the Jakarta EE platform version, else app server/namespaces) and the *declared* version (`faces-config.xml`) separately; report both, and fall back to the latest RELEASED version when the runtime version is undeterminable.
+  - Suggestions are now held to the detected runtime version; a newer API may only be raised as `info` with its introducing version named.
+  - APIs must be verified against the version-matched **References** in `.claude/faces/rules.md` — delegated to an `Agent`, since the skill has no web access — and reported as unconfirmed rather than recommended when verification fails.
+  - New **Backing Beans** check: event listeners must use a mechanism that exists in the detected version.
+  - Checklist items already covered by `.claude/faces/rules.md` collapsed into pointers to the relevant section ("Component Rules" for form nesting, "CDI and Bean Management" + "Scope Selection" for bean declaration, scope, `Serializable`, `@PostConstruct` and getter purity) instead of restating them.
+  - **Configuration**: replaced the `faces-config.xml`-only version check with a check across `faces-config.xml`, `web.xml` and `beans.xml`, each matched against the API version the runtime supplies for ITS OWN specification (Faces, Servlet, CDI respectively — not the Jakarta EE platform version), covering the `version` attribute *and* the `xsi:schemaLocation`, reported as `warning` when lagging.
+  - **Output Format**: the report opens with the detected versions and each fix is constrained to the runtime version.
+
 ## 1.2.4
 
 ### Knowledge Base — Updated
@@ -54,7 +82,7 @@
 ### Knowledge Base — Updated
 - **rules.md**:
   - New **Injectable Faces Types** subsection under CDI: typed `@Inject` targets, Servlet-provided types, `jakarta.faces.annotation` Map qualifiers, `@Inject @ManagedProperty`.
-  - New **System Events and Phase Listeners** subsection: CDI `@Observes` with `@BeforePhase`/`@AfterPhase`/`@PreRenderView`, etc.
+  - New **System Events and Phase Listeners** subsection: CDI `@Observes` with `@BeforePhase`/`@AfterPhase`/`PreRenderViewEvent`, etc.
   - New **View Metadata** subsection: `<f:metadata>`, `<f:viewParam>`, `<f:viewAction>` with placement rules.
   - Faces 5.0 added to version lineage.
   - `@ClientWindowScoped` clarified: `jfwid` mechanism, semantics.
