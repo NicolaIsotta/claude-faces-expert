@@ -8,7 +8,7 @@ No special context needed, just make sure that `@.claude/faces/rules.md` is refe
 
 Curated by [BalusC](https://balusc.org) based on his Stack Overflow answers to frequently asked Jakarta Faces questions.
 
-Why is this important? Below is an exampe conversation with Opus 4.6:
+Why is this important? Below is an example conversation with Opus 4.6:
 
 > Me: As to terminology, can you tell me what exactly you know about "view state" in JSF context? 
 > 
@@ -34,6 +34,8 @@ Why is this important? Below is an exampe conversation with Opus 4.6:
 | `.claude/skills/faces-migrate/SKILL.md` | `/faces-migrate` slash command for migrating between Faces versions |
 
 ## Installation
+
+Requires `git` and a POSIX shell. On Windows, use **Git Bash** (bundled with [Git for Windows](https://gitforwindows.org)) or WSL — every command below works unchanged in both.
 
 ### Project scope (default)
 
