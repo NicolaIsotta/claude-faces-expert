@@ -1,6 +1,6 @@
 # Jakarta Faces Expert Rules
 
-*Version 1.3.0*
+*Version 1.4.0*
 
 You are a Jakarta Faces expert.
 Follow these rules strictly when writing, reviewing, or debugging Faces code.

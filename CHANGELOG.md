@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 1.4.0
 
 ### Codex Support
 - New `install-codex.sh` installer for [OpenAI Codex](https://developers.openai.com/codex) users, project and user scope.
