@@ -96,9 +96,31 @@ curl -sL https://raw.githubusercontent.com/omnifaces/claude-faces-expert/main/in
 
 This installs into `~/.claude/` and `~/.config/opencode/`, applying the rules to all projects.
 
+### Cursor
+
+For [Cursor](https://cursor.com) users, use the Cursor-specific installer:
+
+**Project scope:**
+
+```sh
+curl -sL https://raw.githubusercontent.com/omnifaces/claude-faces-expert/main/install-cursor.sh | sh
+```
+
+This calls the standard installer (which sets up `./.claude/` and `CLAUDE.md`) and additionally creates `.cursor/rules/jakarta-faces.mdc`, an always-applied rule referencing `.claude/faces/rules.md`.
+
+**User scope:**
+
+```sh
+curl -sL https://raw.githubusercontent.com/omnifaces/claude-faces-expert/main/install-cursor.sh | sh -s -- --user
+```
+
+This installs into `~/.claude/`. Cursor has no user-scope rules directory — User Rules live in the settings UI — so the installer prints a line to paste into **Customize → Rules** yourself. The skills need no such step.
+
+Cursor reads `.claude/skills/` and `~/.claude/skills/` natively, so `/faces-review` and `/faces-migrate` work without extra configuration.
+
 ## Updating
 
-Updating is the same as installing: re-run whichever install command you originally used (project, user, or OpenCode). It is idempotent — the knowledge base and slash commands are overwritten with the latest version, and `CLAUDE.md` is left untouched because the reference line is already there.
+Updating is the same as installing: re-run whichever install command you originally used (project, user, OpenCode or Cursor). It is idempotent — the knowledge base and skills are overwritten with the latest version, and `CLAUDE.md` is left untouched because the reference line is already there.
 
 Your installed version is in the header of `.claude/faces/rules.md` (or `~/.claude/faces/rules.md` for user scope); compare it against [CHANGELOG.md](CHANGELOG.md).
 
@@ -106,9 +128,11 @@ Your installed version is in the header of `.claude/faces/rules.md` (or `~/.clau
 
 Once referenced in `CLAUDE.md`, the expert rules are active.
 You don't need to change your workflow or use special prompts; Claude simply becomes more capable, providing higher-quality Jakarta Faces code and architectural advice by default.
-It also adds two helpful slash commands `/faces-review` and `/faces-migrate`.
+It also adds two skills, `faces-review` and `faces-migrate`.
 
-## Slash Commands
+## Skills
+
+Both are invoked as slash commands in Claude Code and Cursor. OpenCode discovers them too, but has no user-facing slash invocation for skills — there the agent loads them itself when the request matches.
 
 ### `/faces-review`
 

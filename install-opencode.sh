@@ -47,10 +47,10 @@ else
 fi
 
 if [ ! -f "$AGENTS_MD" ]; then
-    printf '# Agent Notes\n\n@%s\n' "$INSTRUCTIONS" > "$AGENTS_MD"
+    printf '# Agent Notes\n\nWhen working on Jakarta Faces code, first read `%s`.\n' "$INSTRUCTIONS" > "$AGENTS_MD"
     echo "Created $AGENTS_MD"
 elif ! grep -qF "$INSTRUCTIONS" "$AGENTS_MD"; then
-    printf '\n## Jakarta Faces\n\n@%s\n' "$INSTRUCTIONS" >> "$AGENTS_MD"
+    printf '\n## Jakarta Faces\n\nWhen working on Jakarta Faces code, first read `%s`.\n' "$INSTRUCTIONS" >> "$AGENTS_MD"
     echo "Updated $AGENTS_MD"
 else
     echo "$AGENTS_MD already references Faces rules."

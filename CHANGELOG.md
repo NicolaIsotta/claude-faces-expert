@@ -1,5 +1,20 @@
 # Changelog
 
+## Unreleased
+
+### Cursor Support
+- New `install-cursor.sh` installer for [Cursor](https://cursor.com) users.
+- Creates `.cursor/rules/jakarta-faces.mdc`, an `alwaysApply` rule referencing `.claude/faces/rules.md`, so the knowledge base is loaded without duplicating it.
+- Reuses the existing `.claude/faces/` layout via `install.sh`.
+- Project scope only; Cursor has no user-scope rules directory (User Rules are settings-UI text), so `--user` installs the knowledge base and prints the line to add manually.
+- The skills need no configuration: Cursor reads `.claude/skills/` and `~/.claude/skills/` natively and honours `disable-model-invocation`, so `/faces-review` and `/faces-migrate` work as-is.
+
+### OpenCode — Fixed
+- **install-opencode.sh**: `AGENTS.md` referenced the rules as `@.claude/faces/rules.md`, but OpenCode does not parse file references in `AGENTS.md`, so that line loaded nothing; it now instructs the agent to read the file instead. Existing installs were nevertheless fine: the installer writes two files, and the one that actually loads the knowledge base is `opencode.json`, whose `instructions` field takes the same path and works. The rules therefore reached the context through that path and the inert `AGENTS.md` line produced no visible symptom. The one case that did lose out is a project that already had an `opencode.json`: there the installer only prints a warning and leaves that file untouched, so `AGENTS.md` was the sole thing it configured and the knowledge base was never loaded.
+
+### Documentation — Fixed
+- **README.md**: the "Updating" and "How it Works" sections claimed `/faces-review` and `/faces-migrate` are slash commands in tool-neutral prose, which only ever held for Claude Code. OpenCode discovers the skills but exposes no slash invocation for them.
+
 ## 1.3.0
 
 ### Knowledge Base — Fixed
