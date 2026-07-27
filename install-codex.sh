@@ -44,9 +44,14 @@ mkdir -p "$(dirname "$AGENTS_MD")"
 TMP_FILE=$(mktemp)
 
 if [ -f "$AGENTS_MD" ]; then
-    awk '/^<!-- BEGIN Jakarta Faces Expert -->$/ { skip = 1; next }
-         /^<!-- END Jakarta Faces Expert -->$/   { skip = 0; next }
-         !skip' "$AGENTS_MD" > "$TMP_FILE"
+    if grep -qF "$BEGIN_MARKER" "$AGENTS_MD" && ! grep -qF "$END_MARKER" "$AGENTS_MD"; then
+        rm -f "$TMP_FILE"
+        echo "ERROR: $AGENTS_MD has a begin marker without a matching end marker." >&2
+        echo "  Restore the '$END_MARKER' line or delete the block by hand, then re-run." >&2
+        exit 1
+    fi
+    awk -v begin="$BEGIN_MARKER" -v end="$END_MARKER" \
+        '$0 == begin { skip = 1; next } $0 == end { skip = 0; next } !skip' "$AGENTS_MD" > "$TMP_FILE"
     ACTION="Updated"
 else
     printf '# Agent Notes\n' > "$TMP_FILE"
@@ -62,7 +67,8 @@ fi
     printf '\n%s\n' "$END_MARKER"
 } >> "$TMP_FILE"
 
-mv "$TMP_FILE" "$AGENTS_MD"
+cat "$TMP_FILE" > "$AGENTS_MD"
+rm -f "$TMP_FILE"
 echo "$ACTION $AGENTS_MD"
 
 mkdir -p "$SKILLS_DIR"

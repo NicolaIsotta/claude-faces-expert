@@ -5,7 +5,7 @@
 ### Codex Support
 - New `install-codex.sh` installer for [OpenAI Codex](https://developers.openai.com/codex) users, project and user scope.
 - Writes `AGENTS.md` (project) or `~/.codex/AGENTS.md` (user). Codex concatenates the `AGENTS.md` files it discovers as literal text and resolves no references to other files, so the rules are inlined between the same `<!-- BEGIN Jakarta Faces Expert -->` / `<!-- END Jakarta Faces Expert -->` markers the Copilot installer uses; re-running replaces only that block.
-- Copies the skills into `.agents/skills/` (project) or `~/.agents/skills/` (user). Codex scans `.agents/skills` and `$HOME/.agents/skills` but not `.claude/skills/`, so unlike Cursor and OpenCode it cannot pick them up in place.
+- Copies the skills into `.agents/skills/` (project) or `~/.agents/skills/` (user). Codex scans `.agents/skills` and `$HOME/.agents/skills` but not `.claude/skills/`, so unlike Cursor it cannot pick them up in place. Both skills set `disable-model-invocation: true` and Codex offers no slash invocation for them, so treat them as inert there; the knowledge base in `AGENTS.md` is what carries the value.
 - **install-opencode.sh**: skips writing its `AGENTS.md` pointer when that file already carries the inlined block, so a project using both Codex and OpenCode does not load the rules twice.
 
 ### Copilot Support
@@ -24,10 +24,11 @@
 - The skills need no configuration: Cursor reads `.claude/skills/` and `~/.claude/skills/` natively and honours `disable-model-invocation`, so `/faces-review` and `/faces-migrate` work as-is.
 
 ### OpenCode — Fixed
-- **install-opencode.sh**: `AGENTS.md` referenced the rules as `@.claude/faces/rules.md`, but OpenCode does not parse file references in `AGENTS.md`, so that line loaded nothing; it now instructs the agent to read the file instead. The instruction is worded unconditionally ("before answering any question about Jakarta Faces, conceptual ones included") because a conditional one scoped to code work does not fire on a terminology question, which is exactly the case the knowledge base exists to correct. Existing installs were nevertheless fine: the installer writes two files, and the one that actually loads the knowledge base is `opencode.json`, whose `instructions` field takes the same path and works. The rules therefore reached the context through that path and the inert `AGENTS.md` line produced no visible symptom. The one case that did lose out is a project that already had an `opencode.json`: there the installer only prints a warning and leaves that file untouched, so `AGENTS.md` was the sole thing it configured and the knowledge base was never loaded.
+- **install-opencode.sh**: `AGENTS.md` now instructs the agent to read `.claude/faces/rules.md` instead of referencing it as `@.claude/faces/rules.md`, which OpenCode does not resolve. The instruction is worded unconditionally ("before answering any question about Jakarta Faces, conceptual ones included") because a conditional one scoped to code work does not fire on a terminology question, which is exactly the case the knowledge base exists to correct. Re-running the installer rewrites the old `@` pointer line in place, so existing installs pick the fix up.
 
 ### Documentation — Fixed
-- **README.md**: the "Updating" and "How it Works" sections claimed `/faces-review` and `/faces-migrate` are slash commands in tool-neutral prose, which only ever held for Claude Code. OpenCode discovers the skills but exposes no slash invocation for them.
+- **README.md**: the "What's included", "Updating" and "How it Works" sections claimed `/faces-review` and `/faces-migrate` are slash commands in tool-neutral prose, which holds for Claude Code and Cursor only. Both skills set `disable-model-invocation: true`, and neither OpenCode nor Codex exposes a slash invocation for skills, so they are inert there.
+- **README.md**: the intro described the project as being for Claude Code alone, though four more tools now have installers.
 
 ## 1.3.0
 

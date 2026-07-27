@@ -33,9 +33,14 @@ mkdir -p "$(dirname "$COPILOT_MD")"
 TMP_FILE=$(mktemp)
 
 if [ -f "$COPILOT_MD" ]; then
-    awk '/^<!-- BEGIN Jakarta Faces Expert -->$/ { skip = 1; next }
-         /^<!-- END Jakarta Faces Expert -->$/   { skip = 0; next }
-         !skip' "$COPILOT_MD" > "$TMP_FILE"
+    if grep -qF "$BEGIN_MARKER" "$COPILOT_MD" && ! grep -qF "$END_MARKER" "$COPILOT_MD"; then
+        rm -f "$TMP_FILE"
+        echo "ERROR: $COPILOT_MD has a begin marker without a matching end marker." >&2
+        echo "  Restore the '$END_MARKER' line or delete the block by hand, then re-run." >&2
+        exit 1
+    fi
+    awk -v begin="$BEGIN_MARKER" -v end="$END_MARKER" \
+        '$0 == begin { skip = 1; next } $0 == end { skip = 0; next } !skip' "$COPILOT_MD" > "$TMP_FILE"
     ACTION="Updated"
 else
     printf '# Copilot Instructions\n' > "$TMP_FILE"
@@ -51,7 +56,8 @@ fi
     printf '\n%s\n' "$END_MARKER"
 } >> "$TMP_FILE"
 
-mv "$TMP_FILE" "$COPILOT_MD"
+cat "$TMP_FILE" > "$COPILOT_MD"
+rm -f "$TMP_FILE"
 echo "$ACTION $COPILOT_MD"
 
 echo "Copilot configuration complete (project scope)"

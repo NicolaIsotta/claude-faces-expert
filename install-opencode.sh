@@ -46,13 +46,21 @@ else
     echo "$OPENCODE_JSON already references Faces rules."
 fi
 
+POINTER="Before answering any question about Jakarta Faces (JSF), conceptual ones included, first read \`$INSTRUCTIONS\` and follow it."
+
 if [ -f "$AGENTS_MD" ] && grep -qF "<!-- BEGIN Jakarta Faces Expert -->" "$AGENTS_MD"; then
     echo "$AGENTS_MD already has the rules inlined by install-codex.sh; skipping pointer."
 elif [ ! -f "$AGENTS_MD" ]; then
-    printf '# Agent Notes\n\nBefore answering any question about Jakarta Faces (JSF), conceptual ones included, first read `%s` and follow it.\n' "$INSTRUCTIONS" > "$AGENTS_MD"
+    printf '# Agent Notes\n\n%s\n' "$POINTER" > "$AGENTS_MD"
     echo "Created $AGENTS_MD"
+elif grep -qxF "@$INSTRUCTIONS" "$AGENTS_MD"; then
+    TMP_FILE=$(mktemp)
+    awk -v old="@$INSTRUCTIONS" -v pointer="$POINTER" '$0 == old { print pointer; next } { print }' "$AGENTS_MD" > "$TMP_FILE"
+    cat "$TMP_FILE" > "$AGENTS_MD"
+    rm -f "$TMP_FILE"
+    echo "Updated $AGENTS_MD"
 elif ! grep -qF "$INSTRUCTIONS" "$AGENTS_MD"; then
-    printf '\n## Jakarta Faces\n\nBefore answering any question about Jakarta Faces (JSF), conceptual ones included, first read `%s` and follow it.\n' "$INSTRUCTIONS" >> "$AGENTS_MD"
+    printf '\n## Jakarta Faces\n\n%s\n' "$POINTER" >> "$AGENTS_MD"
     echo "Updated $AGENTS_MD"
 else
     echo "$AGENTS_MD already references Faces rules."

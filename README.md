@@ -2,8 +2,8 @@
 
 *Version 1.3.0*
 
-Drop-in Jakarta Faces knowledge base for [Claude Code](https://claude.com/claude-code).
-Makes Claude Code more aware of Jakarta Faces (formerly JSF) best practices, common pitfalls, and diagnostic decision trees.
+Drop-in Jakarta Faces knowledge base for [Claude Code](https://claude.com/claude-code), with installers for [GitHub Copilot](https://github.com/features/copilot), [Cursor](https://cursor.com), [Codex](https://developers.openai.com/codex) and [OpenCode](https://opencode.ai/).
+Makes the coding agent more aware of Jakarta Faces (formerly JSF) best practices, common pitfalls, and diagnostic decision trees.
 No special context needed, just make sure that `@.claude/faces/rules.md` is referenced in your `CLAUDE.md`.
 
 Curated by [BalusC](https://balusc.org) based on his Stack Overflow answers to frequently asked Jakarta Faces questions.
@@ -30,8 +30,8 @@ Why is this important? Below is an example conversation with Opus 4.6:
 | `.claude/faces/topics/lifecycle.md` | Request processing lifecycle: phases, shortcuts, ajax, PhaseListener |
 | `.claude/faces/topics/conversion-validation.md` | Converters, validators, Bean Validation integration, custom converters/validators |
 | `.claude/faces/topics/examples.md` | Concrete code examples demonstrating best practices |
-| `.claude/skills/faces-review/SKILL.md` | `/faces-review` slash command for reviewing Faces code |
-| `.claude/skills/faces-migrate/SKILL.md` | `/faces-migrate` slash command for migrating between Faces versions |
+| `.claude/skills/faces-review/SKILL.md` | Skill for reviewing Faces code, invoked as `/faces-review` in Claude Code and Cursor |
+| `.claude/skills/faces-migrate/SKILL.md` | Skill for migrating between Faces versions, invoked as `/faces-migrate` in Claude Code and Cursor |
 
 ## Installation
 
@@ -45,7 +45,7 @@ From your project root, run:
 curl -sL https://raw.githubusercontent.com/omnifaces/claude-faces-expert/main/install.sh | sh
 ```
 
-This copies the knowledge base and slash commands into `./.claude/`, and adds the `@.claude/faces/rules.md` reference to your project's `CLAUDE.md` (creates it if needed).
+This copies the knowledge base and skills into `./.claude/`, and adds the `@.claude/faces/rules.md` reference to your project's `CLAUDE.md` (creates it if needed).
 
 ### User scope (applies to all projects)
 
@@ -88,7 +88,7 @@ This calls the standard installer (which sets up `./.claude/` and `CLAUDE.md`) a
 
 Copilot does not act on references to other files from its instructions file, so the rules are **inlined** there rather than referenced, between `<!-- BEGIN Jakarta Faces Expert -->` and `<!-- END Jakarta Faces Expert -->` markers. Re-running the installer replaces only that block, so anything else you put in the file is preserved. The topic files stay referenced; Copilot's agent mode reads them on demand, after asking permission.
 
-Copilot instructions are per-repository, so there is no user scope. **The skills are not picked up either** — `/faces-review` and `/faces-migrate` are Claude Code, Cursor and OpenCode only.
+Copilot instructions are per-repository, so there is no user scope. **The skills are not picked up either** — `/faces-review` and `/faces-migrate` are Claude Code and Cursor only.
 
 ### Cursor
 
@@ -130,7 +130,7 @@ curl -sL https://raw.githubusercontent.com/omnifaces/claude-faces-expert/main/in
 
 This calls the standard installer and additionally writes `AGENTS.md` (or `~/.codex/AGENTS.md` for user scope), and copies the skills into `.agents/skills/` (or `~/.agents/skills/`).
 
-Codex loads `AGENTS.md` as literal text and does not resolve references to other files, so — as with Copilot — the rules are **inlined** between `<!-- BEGIN Jakarta Faces Expert -->` and `<!-- END Jakarta Faces Expert -->` markers. Re-running replaces only that block. Codex does not read `.claude/skills/` either, hence the copy into `.agents/skills/`; re-run the installer to update them.
+Codex loads `AGENTS.md` as literal text and does not resolve references to other files, so — as with Copilot — the rules are **inlined** between `<!-- BEGIN Jakarta Faces Expert -->` and `<!-- END Jakarta Faces Expert -->` markers. Re-running replaces only that block. Codex does not read `.claude/skills/` either, hence the copy into `.agents/skills/`; re-run the installer to update them. There is no slash invocation for them in Codex, so the knowledge base is what matters there.
 
 If you also use OpenCode in the same project, run this installer first: `install-opencode.sh` detects the inlined block and skips writing its own pointer, so the rules are not loaded twice.
 
@@ -168,7 +168,9 @@ It also adds two skills, `faces-review` and `faces-migrate`.
 
 ## Skills
 
-Both are invoked as slash commands in Claude Code and Cursor. OpenCode discovers them too, but has no user-facing slash invocation for skills — there the agent loads them itself when the request matches. Codex does not read `.claude/skills/` either, so its installer copies them into `.agents/skills/`, where the agent loads them itself. Copilot does not read them at all, so it gets the knowledge base but not the skills.
+Both set `disable-model-invocation: true` in their frontmatter: they run when you ask for them, never on the agent's own initiative.
+Claude Code and Cursor read `.claude/skills/` and `~/.claude/skills/` natively, honour that flag, and expose the skills as `/faces-review` and `/faces-migrate`.
+OpenCode and Codex offer no user-facing slash invocation for skills, so there they are effectively inert; the Codex installer copies them into `.agents/skills/` anyway, but the knowledge base is what does the work in both. Copilot does not read skills at all.
 
 ### `/faces-review`
 
