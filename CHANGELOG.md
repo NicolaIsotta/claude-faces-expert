@@ -2,6 +2,12 @@
 
 ## Unreleased
 
+### Codex Support
+- New `install-codex.sh` installer for [OpenAI Codex](https://developers.openai.com/codex) users, project and user scope.
+- Writes `AGENTS.md` (project) or `~/.codex/AGENTS.md` (user). Codex concatenates the `AGENTS.md` files it discovers as literal text and resolves no references to other files, so the rules are inlined between the same `<!-- BEGIN Jakarta Faces Expert -->` / `<!-- END Jakarta Faces Expert -->` markers the Copilot installer uses; re-running replaces only that block.
+- Copies the skills into `.agents/skills/` (project) or `~/.agents/skills/` (user). Codex scans `.agents/skills` and `$HOME/.agents/skills` but not `.claude/skills/`, so unlike Cursor and OpenCode it cannot pick them up in place.
+- **install-opencode.sh**: skips writing its `AGENTS.md` pointer when that file already carries the inlined block, so a project using both Codex and OpenCode does not load the rules twice.
+
 ### Copilot Support
 - New `install-copilot.sh` installer for [GitHub Copilot](https://github.com/features/copilot) users.
 - Writes `.github/copilot-instructions.md`, the one instructions mechanism supported across all Copilot surfaces; `.github/instructions/*.instructions.md` is scoped to the cloud agent and code review, so it is not used.

@@ -46,7 +46,9 @@ else
     echo "$OPENCODE_JSON already references Faces rules."
 fi
 
-if [ ! -f "$AGENTS_MD" ]; then
+if [ -f "$AGENTS_MD" ] && grep -qF "<!-- BEGIN Jakarta Faces Expert -->" "$AGENTS_MD"; then
+    echo "$AGENTS_MD already has the rules inlined by install-codex.sh; skipping pointer."
+elif [ ! -f "$AGENTS_MD" ]; then
     printf '# Agent Notes\n\nBefore answering any question about Jakarta Faces (JSF), conceptual ones included, first read `%s` and follow it.\n' "$INSTRUCTIONS" > "$AGENTS_MD"
     echo "Created $AGENTS_MD"
 elif ! grep -qF "$INSTRUCTIONS" "$AGENTS_MD"; then

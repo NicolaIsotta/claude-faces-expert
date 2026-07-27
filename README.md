@@ -112,6 +112,28 @@ This installs into `~/.claude/`. Cursor has no user-scope rules directory — Us
 
 Cursor reads `.claude/skills/` and `~/.claude/skills/` natively, so `/faces-review` and `/faces-migrate` work without extra configuration.
 
+### Codex
+
+For [OpenAI Codex](https://developers.openai.com/codex) users, use the Codex-specific installer:
+
+**Project scope:**
+
+```sh
+curl -sL https://raw.githubusercontent.com/omnifaces/claude-faces-expert/main/install-codex.sh | sh
+```
+
+**User scope:**
+
+```sh
+curl -sL https://raw.githubusercontent.com/omnifaces/claude-faces-expert/main/install-codex.sh | sh -s -- --user
+```
+
+This calls the standard installer and additionally writes `AGENTS.md` (or `~/.codex/AGENTS.md` for user scope), and copies the skills into `.agents/skills/` (or `~/.agents/skills/`).
+
+Codex loads `AGENTS.md` as literal text and does not resolve references to other files, so — as with Copilot — the rules are **inlined** between `<!-- BEGIN Jakarta Faces Expert -->` and `<!-- END Jakarta Faces Expert -->` markers. Re-running replaces only that block. Codex does not read `.claude/skills/` either, hence the copy into `.agents/skills/`; re-run the installer to update them.
+
+If you also use OpenCode in the same project, run this installer first: `install-opencode.sh` detects the inlined block and skips writing its own pointer, so the rules are not loaded twice.
+
 ### OpenCode
 
 For [OpenCode](https://opencode.ai/) users, use the OpenCode-specific installer:
@@ -134,7 +156,7 @@ This installs into `~/.claude/` and `~/.config/opencode/`, applying the rules to
 
 ## Updating
 
-Updating is the same as installing: re-run whichever install command you originally used (project, user, Copilot, Cursor or OpenCode). It is idempotent — the knowledge base and skills are overwritten with the latest version, and `CLAUDE.md` is left untouched because the reference line is already there.
+Updating is the same as installing: re-run whichever install command you originally used (project, user, Copilot, Cursor, Codex or OpenCode). It is idempotent — the knowledge base and skills are overwritten with the latest version, and `CLAUDE.md` is left untouched because the reference line is already there.
 
 Your installed version is in the header of `.claude/faces/rules.md` (or `~/.claude/faces/rules.md` for user scope); compare it against [CHANGELOG.md](CHANGELOG.md).
 
@@ -146,7 +168,7 @@ It also adds two skills, `faces-review` and `faces-migrate`.
 
 ## Skills
 
-Both are invoked as slash commands in Claude Code and Cursor. OpenCode discovers them too, but has no user-facing slash invocation for skills — there the agent loads them itself when the request matches. Copilot does not read `.claude/skills/` at all, so it gets the knowledge base but not the skills.
+Both are invoked as slash commands in Claude Code and Cursor. OpenCode discovers them too, but has no user-facing slash invocation for skills — there the agent loads them itself when the request matches. Codex does not read `.claude/skills/` either, so its installer copies them into `.agents/skills/`, where the agent loads them itself. Copilot does not read them at all, so it gets the knowledge base but not the skills.
 
 ### `/faces-review`
 
