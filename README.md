@@ -166,6 +166,16 @@ Once referenced in `CLAUDE.md`, the expert rules are active.
 You don't need to change your workflow or use special prompts; Claude simply becomes more capable, providing higher-quality Jakarta Faces code and architectural advice by default.
 It also adds two skills, `faces-review` and `faces-migrate`.
 
+## Why not a Plugin?
+
+What ships here is an always-on knowledge base, not a command, and that is the whole reason for the plain file layout.
+Claude Code plugins contribute context through skills, agents and hooks; a `CLAUDE.md` at the plugin root is not loaded as project context.
+The closest plugin equivalent is a model-invoked skill: its description stays in context permanently and its body is loaded when the agent judges it relevant.
+That trades a guarantee for the model's discretion, which is a bad deal for rules whose purpose is to correct answers the model is already confident about — a Faces terminology question does not look like a moment that calls for a Faces skill.
+
+Plugins also cannot reference files outside their own directory, so `faces/rules.md` and its topic files would have to move inside a skill or be duplicated across both.
+None of this is permanent. If the plugin format ever grows real always-on context, packaging as a plugin becomes worth revisiting.
+
 ## Skills
 
 Both set `disable-model-invocation: true` in their frontmatter: they run when you ask for them, never on the agent's own initiative.

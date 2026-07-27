@@ -26,6 +26,9 @@
 ### OpenCode — Fixed
 - **install-opencode.sh**: `AGENTS.md` now instructs the agent to read `.claude/faces/rules.md` instead of referencing it as `@.claude/faces/rules.md`, which OpenCode does not resolve. The instruction is worded unconditionally ("before answering any question about Jakarta Faces, conceptual ones included") because a conditional one scoped to code work does not fire on a terminology question, which is exactly the case the knowledge base exists to correct. Re-running the installer rewrites the old `@` pointer line in place, so existing installs pick the fix up.
 
+### Documentation — Added
+- **README.md**: new "Why not a Plugin?" section, explaining that the product is an always-on knowledge base rather than a command, that the closest plugin equivalent loads at the model's discretion, and that plugins cannot reference files outside their own directory (#2, #7).
+
 ### Documentation — Fixed
 - **README.md**: the "What's included", "Updating" and "How it Works" sections claimed `/faces-review` and `/faces-migrate` are slash commands in tool-neutral prose, which holds for Claude Code and Cursor only. Both skills set `disable-model-invocation: true`, and neither OpenCode nor Codex exposes a slash invocation for skills, so they are inert there.
 - **README.md**: the intro described the project as being for Claude Code alone, though four more tools now have installers.
