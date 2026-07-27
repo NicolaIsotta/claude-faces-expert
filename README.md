@@ -76,25 +76,19 @@ Then add this line to your `CLAUDE.md` (or `~/.claude/CLAUDE.md` for user scope,
 Jakarta Faces rules: @.claude/faces/rules.md
 ```
 
-### OpenCode
+### GitHub Copilot
 
-For [OpenCode](https://opencode.ai/) users, use the OpenCode-specific installer:
-
-**Project scope:**
+For [GitHub Copilot](https://github.com/features/copilot) users, use the Copilot-specific installer:
 
 ```sh
-curl -sL https://raw.githubusercontent.com/omnifaces/claude-faces-expert/main/install-opencode.sh | sh
+curl -sL https://raw.githubusercontent.com/omnifaces/claude-faces-expert/main/install-copilot.sh | sh
 ```
 
-This calls the standard installer (which sets up `./.claude/` and `CLAUDE.md`) and additionally creates `opencode.json` and `AGENTS.md` in the project root. The same `.claude/faces/` rules are used by both tools.
+This calls the standard installer (which sets up `./.claude/` and `CLAUDE.md`) and additionally writes `.github/copilot-instructions.md`.
 
-**User scope:**
+Copilot does not act on references to other files from its instructions file, so the rules are **inlined** there rather than referenced, between `<!-- BEGIN Jakarta Faces Expert -->` and `<!-- END Jakarta Faces Expert -->` markers. Re-running the installer replaces only that block, so anything else you put in the file is preserved. The topic files stay referenced; Copilot's agent mode reads them on demand, after asking permission.
 
-```sh
-curl -sL https://raw.githubusercontent.com/omnifaces/claude-faces-expert/main/install-opencode.sh | sh -s -- --user
-```
-
-This installs into `~/.claude/` and `~/.config/opencode/`, applying the rules to all projects.
+Copilot instructions are per-repository, so there is no user scope. **The skills are not picked up either** — `/faces-review` and `/faces-migrate` are Claude Code, Cursor and OpenCode only.
 
 ### Cursor
 
@@ -118,9 +112,29 @@ This installs into `~/.claude/`. Cursor has no user-scope rules directory — Us
 
 Cursor reads `.claude/skills/` and `~/.claude/skills/` natively, so `/faces-review` and `/faces-migrate` work without extra configuration.
 
+### OpenCode
+
+For [OpenCode](https://opencode.ai/) users, use the OpenCode-specific installer:
+
+**Project scope:**
+
+```sh
+curl -sL https://raw.githubusercontent.com/omnifaces/claude-faces-expert/main/install-opencode.sh | sh
+```
+
+This calls the standard installer (which sets up `./.claude/` and `CLAUDE.md`) and additionally creates `opencode.json` and `AGENTS.md` in the project root. The same `.claude/faces/` rules are used by both tools.
+
+**User scope:**
+
+```sh
+curl -sL https://raw.githubusercontent.com/omnifaces/claude-faces-expert/main/install-opencode.sh | sh -s -- --user
+```
+
+This installs into `~/.claude/` and `~/.config/opencode/`, applying the rules to all projects.
+
 ## Updating
 
-Updating is the same as installing: re-run whichever install command you originally used (project, user, OpenCode or Cursor). It is idempotent — the knowledge base and skills are overwritten with the latest version, and `CLAUDE.md` is left untouched because the reference line is already there.
+Updating is the same as installing: re-run whichever install command you originally used (project, user, Copilot, Cursor or OpenCode). It is idempotent — the knowledge base and skills are overwritten with the latest version, and `CLAUDE.md` is left untouched because the reference line is already there.
 
 Your installed version is in the header of `.claude/faces/rules.md` (or `~/.claude/faces/rules.md` for user scope); compare it against [CHANGELOG.md](CHANGELOG.md).
 
@@ -132,7 +146,7 @@ It also adds two skills, `faces-review` and `faces-migrate`.
 
 ## Skills
 
-Both are invoked as slash commands in Claude Code and Cursor. OpenCode discovers them too, but has no user-facing slash invocation for skills — there the agent loads them itself when the request matches.
+Both are invoked as slash commands in Claude Code and Cursor. OpenCode discovers them too, but has no user-facing slash invocation for skills — there the agent loads them itself when the request matches. Copilot does not read `.claude/skills/` at all, so it gets the knowledge base but not the skills.
 
 ### `/faces-review`
 

@@ -28,7 +28,7 @@ echo "Configuring Cursor..."
 if [ "$SCOPE" = "user" ]; then
     echo "WARNING: Cursor has no user-scope rules directory. Manual step required:" >&2
     echo "  Open Customize -> Rules and add this line to User Rules:" >&2
-    echo "    For Jakarta Faces work, first read the rules in $INSTRUCTIONS" >&2
+    echo "    Before answering any question about Jakarta Faces (JSF), conceptual ones included, first read $INSTRUCTIONS and follow it." >&2
 else
     RULES_MDC=".cursor/rules/jakarta-faces.mdc"
 

@@ -2,6 +2,14 @@
 
 ## Unreleased
 
+### Copilot Support
+- New `install-copilot.sh` installer for [GitHub Copilot](https://github.com/features/copilot) users.
+- Writes `.github/copilot-instructions.md`, the one instructions mechanism supported across all Copilot surfaces; `.github/instructions/*.instructions.md` is scoped to the cloud agent and code review, so it is not used.
+- The rules are **inlined** rather than referenced: Copilot's ask mode has no file access at all, and its agent mode reads a referenced file only after a permission prompt, so a pointer cannot deliver an always-on knowledge base. The topic files stay referenced, since inlining them would put ~1400 further lines into every request for guidance that is consulted rarely.
+- The inlined block is delimited by `<!-- BEGIN Jakarta Faces Expert -->` / `<!-- END Jakarta Faces Expert -->`; re-running replaces only that block, so hand-written content elsewhere in the file survives.
+- Project scope only: Copilot instructions are per-repository, and `--user` exits with an error rather than pretending otherwise.
+- The skills are not installed; Copilot does not read `.claude/skills/`.
+
 ### Cursor Support
 - New `install-cursor.sh` installer for [Cursor](https://cursor.com) users.
 - Creates `.cursor/rules/jakarta-faces.mdc`, an `alwaysApply` rule referencing `.claude/faces/rules.md`, so the knowledge base is loaded without duplicating it.
@@ -10,7 +18,7 @@
 - The skills need no configuration: Cursor reads `.claude/skills/` and `~/.claude/skills/` natively and honours `disable-model-invocation`, so `/faces-review` and `/faces-migrate` work as-is.
 
 ### OpenCode — Fixed
-- **install-opencode.sh**: `AGENTS.md` referenced the rules as `@.claude/faces/rules.md`, but OpenCode does not parse file references in `AGENTS.md`, so that line loaded nothing; it now instructs the agent to read the file instead. Existing installs were nevertheless fine: the installer writes two files, and the one that actually loads the knowledge base is `opencode.json`, whose `instructions` field takes the same path and works. The rules therefore reached the context through that path and the inert `AGENTS.md` line produced no visible symptom. The one case that did lose out is a project that already had an `opencode.json`: there the installer only prints a warning and leaves that file untouched, so `AGENTS.md` was the sole thing it configured and the knowledge base was never loaded.
+- **install-opencode.sh**: `AGENTS.md` referenced the rules as `@.claude/faces/rules.md`, but OpenCode does not parse file references in `AGENTS.md`, so that line loaded nothing; it now instructs the agent to read the file instead. The instruction is worded unconditionally ("before answering any question about Jakarta Faces, conceptual ones included") because a conditional one scoped to code work does not fire on a terminology question, which is exactly the case the knowledge base exists to correct. Existing installs were nevertheless fine: the installer writes two files, and the one that actually loads the knowledge base is `opencode.json`, whose `instructions` field takes the same path and works. The rules therefore reached the context through that path and the inert `AGENTS.md` line produced no visible symptom. The one case that did lose out is a project that already had an `opencode.json`: there the installer only prints a warning and leaves that file untouched, so `AGENTS.md` was the sole thing it configured and the knowledge base was never loaded.
 
 ### Documentation — Fixed
 - **README.md**: the "Updating" and "How it Works" sections claimed `/faces-review` and `/faces-migrate` are slash commands in tool-neutral prose, which only ever held for Claude Code. OpenCode discovers the skills but exposes no slash invocation for them.
