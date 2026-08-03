@@ -1,6 +1,6 @@
 # Conversion and Validation
 
-*Version 1.4.0*
+*Version 1.4.1*
 
 Conversion and validation are central to the Faces MVC lifecycle.
 Converters transform between String (HTTP) and Object (model); validators enforce business rules on the converted value.

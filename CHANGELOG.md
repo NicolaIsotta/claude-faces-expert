@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 1.4.1
 
 ### faces-migrate — Fixed
 - The JSF 2.3 → Faces 3.0 step now migrates the standard message bundle. A project-supplied `javax/faces/Messages*.properties` moves to `jakarta/faces/` and its keys are renamed from `javax.faces.*` to `jakarta.faces.*`; the same key rename applies to a bundle declared by `<message-bundle>` in `faces-config.xml`, and to `javax.validation.constraints.*.message` keys in `ValidationMessages*.properties`. The base name is spec-defined as `FacesMessage.FACES_MESSAGES`, so a bundle left in `javax/faces/` is never found again and the built-in English defaults silently take over — nothing fails at build time (#8).
