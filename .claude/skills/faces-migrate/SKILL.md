@@ -97,8 +97,8 @@ This is purely a package rename; no behavioral changes.
 - Update `web.xml` context param names from `javax.faces.*` to `jakarta.faces.*`.
 - Move any `javax/faces/Messages*.properties` from the project's own resources to `jakarta/faces/`, keeping the locale suffixes (`Messages_it.properties`, `Messages_nl_BE.properties`, etc.).
 - Rename the keys inside that bundle from `javax.faces.*` to `jakarta.faces.*` (e.g. `javax.faces.component.UIInput.REQUIRED` → `jakarta.faces.component.UIInput.REQUIRED`).
-- Rename the same keys in the bundle declared by `<message-bundle>` in `faces-config.xml`, if any. Its file name is project-chosen and stays as-is; only the keys change.
-- Rename `javax.validation.constraints.*.message` keys to `jakarta.validation.constraints.*.message` in `ValidationMessages.properties`, if present.
+- Rename the same keys in the bundle declared by `<message-bundle>` in `faces-config.xml` and in all its locale variants, if any. The declared name is a base name; the file names are project-chosen and stay as-is, only the keys change.
+- Rename `javax.validation.constraints.*.message` keys to `jakarta.validation.constraints.*.message` in `ValidationMessages*.properties`, if present.
 - NOTE: bundles declared by `<resource-bundle>` in `faces-config.xml` hold application-defined keys and need no key rename.
 - FacesServlet: ensure URL pattern is `*.xhtml`; remove legacy `*.jsf`, `*.faces`, `/faces/*` mappings.
 - Update `faces-config.xml` namespace and version to `3.0`.
