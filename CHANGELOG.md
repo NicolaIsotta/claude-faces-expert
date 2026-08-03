@@ -7,6 +7,10 @@
 - The Faces 4.0 → 4.1 step reports the two keys that 4.1 adds to the standard message bundle, `jakarta.faces.converter.UUIDConverter.UUID` and `jakarta.faces.converter.UUIDConverter.UUID_detail`, so an overriding bundle can be completed. Faces 3.0 and 4.0 add none.
 - The verification step greps for leftover `javax.` keys in `*.properties` and for a stale `javax/faces/` resource directory.
 
+### faces-migrate — Changed
+- The Faces 4.0 → 4.1 step covers `jakarta.faces.PARTIAL_STATE_SAVING` next to `jakarta.faces.FULL_STATE_SAVING_VIEW_IDS`; both are `@Deprecated(forRemoval = true, since = "4.1")` on `StateManager`. Set to `true` the param is removed as the default since 2.0, set to `false` it is reported rather than removed, since dropping it flips the application onto partial state saving and surfaces every custom component that does not save its state correctly, which is to be fixed first.
+- The Faces 4.0 → 4.1 step replaces `ActionSource2`, `ActionSource2AttachedObjectHandler` and `ActionSource2AttachedObjectTarget` with their `ActionSource` counterparts, also deprecated for removal since 4.1.
+
 ## 1.4.0
 
 ### Codex Support
