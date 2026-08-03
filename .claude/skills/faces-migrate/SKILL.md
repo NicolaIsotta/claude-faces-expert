@@ -95,6 +95,11 @@ This is purely a package rename; no behavioral changes.
 - Rename ALL `javax.ejb.*` to `jakarta.ejb.*` (if EJB is used).
 - Rename ALL `javax.ws.rs.*` to `jakarta.ws.rs.*` (if JAX-RS is used).
 - Update `web.xml` context param names from `javax.faces.*` to `jakarta.faces.*`.
+- Move any `javax/faces/Messages*.properties` from the project's own resources to `jakarta/faces/`, keeping the locale suffixes (`Messages_it.properties`, `Messages_nl_BE.properties`, etc.).
+- Rename the keys inside that bundle from `javax.faces.*` to `jakarta.faces.*` (e.g. `javax.faces.component.UIInput.REQUIRED` → `jakarta.faces.component.UIInput.REQUIRED`).
+- Rename the same keys in the bundle declared by `<message-bundle>` in `faces-config.xml`, if any. Its file name is project-chosen and stays as-is; only the keys change.
+- Rename `javax.validation.constraints.*.message` keys to `jakarta.validation.constraints.*.message` in `ValidationMessages.properties`, if present.
+- NOTE: bundles declared by `<resource-bundle>` in `faces-config.xml` hold application-defined keys and need no key rename.
 - FacesServlet: ensure URL pattern is `*.xhtml`; remove legacy `*.jsf`, `*.faces`, `/faces/*` mappings.
 - Update `faces-config.xml` namespace and version to `3.0`.
   ```xml
@@ -174,6 +179,9 @@ This is purely a package rename; no behavioral changes.
       version="4.1"
   >
   ```
+- When the project overrides the standard message bundle (`jakarta/faces/Messages*.properties`) or declares a `<message-bundle>`, report the keys that Faces 4.1 adds so the developer can supply translations. Faces 4.1 adds two, for the new `UUIDConverter`:
+  - `jakarta.faces.converter.UUIDConverter.UUID`
+  - `jakarta.faces.converter.UUIDConverter.UUID_detail`
 - Replace any Full State Saving (`FULL_STATE_SAVING_VIEW_IDS`) usage; FSS is deprecated and will be removed in Faces 6.0.
 - Review for new 4.1 features to adopt: https://balusc.omnifaces.org/2024/06/whats-new-in-faces-41.html
 
@@ -189,6 +197,7 @@ For each applicable migration step:
 
 After migration:
 - Check for any remaining old-version references (grep for old package names, old namespaces, old annotations).
+- Check for any remaining `javax.` keys in `*.properties` files and for a leftover `javax/faces/` resource directory; these fail silently rather than at build time.
 - Verify `pom.xml`/`build.gradle` has no conflicting dependency versions.
 - Suggest running `/faces-review` to catch any remaining issues.
 
