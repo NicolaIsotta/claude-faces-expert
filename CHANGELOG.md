@@ -1,5 +1,13 @@
 # Changelog
 
+## Unreleased
+
+### Antigravity Support
+- New `install-antigravity.sh` installer for [Google Antigravity](https://antigravity.google) users, project and user scope (#9).
+- Writes `.agents/rules/jakarta-faces.md` (project) or appends to `~/.gemini/GEMINI.md` (user). Both get the same pointer, an instruction to read `.claude/faces/rules.md` with the agent's file tool rather than the rules themselves: a rule file is capped at 12,000 characters and the knowledge base is several times that, and an `@` reference is expanded into the rule file, so the same cap applies to it. The project rule adds `trigger: always_on` frontmatter to apply it unconditionally, plus a `description` so it still applies by model decision if a future version stops recognising the trigger.
+- Copies the skills into `.agents/skills/` (project) or into both `~/.gemini/antigravity/skills/` and `~/.gemini/config/skills/` (user), the global skill directories of respectively the Antigravity IDE and Antigravity 2.0. Antigravity does not read `.claude/skills/`. The project directory is the one `install-codex.sh` already uses and the content is identical, so both installers can run in the same project. Slash invocation there belongs to workflows rather than skills, so as with Codex the skills are inert and the knowledge base is what carries the value.
+- In user scope, `~/.gemini/GEMINI.md` is shared with the Gemini CLI, which picks the rules up as well.
+
 ## 1.4.1
 
 ### faces-migrate — Fixed
