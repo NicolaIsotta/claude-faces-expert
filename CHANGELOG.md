@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 1.4.2
 
 ### Antigravity Support
 - New `install-antigravity.sh` installer for [Google Antigravity](https://antigravity.google) users, project and user scope (#9).
