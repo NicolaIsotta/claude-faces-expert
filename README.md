@@ -2,7 +2,7 @@
 
 *Version 1.4.1*
 
-Drop-in Jakarta Faces knowledge base for [Claude Code](https://claude.com/claude-code), with installers for [Antigravity](https://antigravity.google), [GitHub Copilot](https://github.com/features/copilot), [Cursor](https://cursor.com), [Codex](https://developers.openai.com/codex) and [OpenCode](https://opencode.ai/).
+Drop-in Jakarta Faces knowledge base for [Claude Code](https://claude.com/claude-code), with installers for [GitHub Copilot](https://github.com/features/copilot), [Cursor](https://cursor.com), [Codex](https://developers.openai.com/codex), [OpenCode](https://opencode.ai/) and [Antigravity](https://antigravity.google).
 Makes the coding agent more aware of Jakarta Faces (formerly JSF) best practices, common pitfalls, and diagnostic decision trees.
 No special context needed, just make sure that `@.claude/faces/rules.md` is referenced in your `CLAUDE.md`.
 
@@ -75,34 +75,6 @@ Then add this line to your `CLAUDE.md` (or `~/.claude/CLAUDE.md` for user scope,
 ```
 Jakarta Faces rules: @.claude/faces/rules.md
 ```
-
-### Antigravity
-
-For [Google Antigravity](https://antigravity.google) users, use the Antigravity-specific installer:
-
-**Project scope:**
-
-```sh
-curl -sL https://raw.githubusercontent.com/omnifaces/claude-faces-expert/main/install-antigravity.sh | sh
-```
-
-**User scope:**
-
-```sh
-curl -sL https://raw.githubusercontent.com/omnifaces/claude-faces-expert/main/install-antigravity.sh | sh -s -- --user
-```
-
-This calls the standard installer and additionally writes `.agents/rules/jakarta-faces.md` (or appends to `~/.gemini/GEMINI.md` for user scope), and copies the skills into `.agents/skills/` (or into both `~/.gemini/antigravity/skills/` and `~/.gemini/config/skills/`, the global skill directories of respectively the Antigravity IDE and Antigravity 2.0).
-
-Both destinations get the same pointer: an instruction to read `.claude/faces/rules.md` with the agent's file tool, rather than the rules themselves.
-A rule file is capped at 12,000 characters and the knowledge base is several times that, and an `@` reference is expanded into the rule file, so the same cap applies to it.
-The project rule adds `trigger: always_on` frontmatter to apply it unconditionally, plus a `description` so it still applies by model decision if a future version stops recognising the trigger.
-
-Antigravity does not read `.claude/skills/`, hence the copy into `.agents/skills/`; re-run the installer to update them.
-In project scope that is the same directory Codex uses, so running both installers there is harmless — the content is identical.
-Slash invocation there belongs to workflows rather than skills, so as with Codex the skills are effectively inert and the knowledge base is what does the work.
-
-In user scope, `~/.gemini/GEMINI.md` is shared with the Gemini CLI, which picks the rules up as well.
 
 ### GitHub Copilot
 
@@ -182,9 +154,37 @@ curl -sL https://raw.githubusercontent.com/omnifaces/claude-faces-expert/main/in
 
 This installs into `~/.claude/` and `~/.config/opencode/`, applying the rules to all projects.
 
+### Antigravity
+
+For [Google Antigravity](https://antigravity.google) users, use the Antigravity-specific installer:
+
+**Project scope:**
+
+```sh
+curl -sL https://raw.githubusercontent.com/omnifaces/claude-faces-expert/main/install-antigravity.sh | sh
+```
+
+**User scope:**
+
+```sh
+curl -sL https://raw.githubusercontent.com/omnifaces/claude-faces-expert/main/install-antigravity.sh | sh -s -- --user
+```
+
+This calls the standard installer and additionally writes `.agents/rules/jakarta-faces.md` (or appends to `~/.gemini/GEMINI.md` for user scope), and copies the skills into `.agents/skills/` (or into both `~/.gemini/antigravity/skills/` and `~/.gemini/config/skills/`, the global skill directories of respectively the Antigravity IDE and Antigravity 2.0).
+
+Both destinations get the same pointer: an instruction to read `.claude/faces/rules.md` with the agent's file tool, rather than the rules themselves.
+A rule file is capped at 12,000 characters and the knowledge base is several times that, and an `@` reference is expanded into the rule file, so the same cap applies to it.
+The project rule adds `trigger: always_on` frontmatter to apply it unconditionally, plus a `description` so it still applies by model decision if a future version stops recognising the trigger.
+
+Antigravity does not read `.claude/skills/`, hence the copy into `.agents/skills/`; re-run the installer to update them.
+In project scope that is the same directory Codex uses, so running both installers there is harmless — the content is identical.
+Slash invocation there belongs to workflows rather than skills, so as with Codex the skills are effectively inert and the knowledge base is what does the work.
+
+In user scope, `~/.gemini/GEMINI.md` is shared with the Gemini CLI, which picks the rules up as well.
+
 ## Updating
 
-Updating is the same as installing: re-run whichever install command you originally used (project, user, Antigravity, Copilot, Cursor, Codex or OpenCode). It is idempotent — the knowledge base and skills are overwritten with the latest version, and `CLAUDE.md` is left untouched because the reference line is already there.
+Updating is the same as installing: re-run whichever install command you originally used (project, user, Copilot, Cursor, Codex, OpenCode or Antigravity). It is idempotent — the knowledge base and skills are overwritten with the latest version, and `CLAUDE.md` is left untouched because the reference line is already there.
 
 Your installed version is in the header of `.claude/faces/rules.md` (or `~/.claude/faces/rules.md` for user scope); compare it against [CHANGELOG.md](CHANGELOG.md).
 
@@ -208,7 +208,7 @@ None of this is permanent. If the plugin format ever grows real always-on contex
 
 Both set `disable-model-invocation: true` in their frontmatter: they run when you ask for them, never on the agent's own initiative.
 Claude Code and Cursor read `.claude/skills/` and `~/.claude/skills/` natively, honour that flag, and expose the skills as `/faces-review` and `/faces-migrate`.
-OpenCode, Codex and Antigravity offer no user-facing slash invocation for skills, so there they are effectively inert; the Codex and Antigravity installers copy them into `.agents/skills/` anyway, but the knowledge base is what does the work in all three. Copilot does not read skills at all.
+Codex, OpenCode and Antigravity offer no user-facing slash invocation for skills, so there they are effectively inert; the Codex and Antigravity installers copy them into `.agents/skills/` anyway, but the knowledge base is what does the work in all three. Copilot does not read skills at all.
 
 ### `/faces-review`
 
