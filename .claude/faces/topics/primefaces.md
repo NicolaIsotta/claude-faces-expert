@@ -21,7 +21,8 @@ The only condition is that the target component MUST have a ID set.
 
 NEVER use `<f:facet name="first">`, `<f:facet name="middle">`, or `<f:facet name="last">` inside `<h:head>`.
 These are PrimeFaces-specific `HeadRenderer` extensions and are incompatible with other libraries (e.g. OmniFaces `CombinedResourceHandler`).
-Instead, place any `<h:outputScript>` or `<h:outputStylesheet>` that must override library-provided resources inside `<h:body>` with `target="head"`.
+Instead, place any `<h:outputScript>` that must override library-provided resources inside `<h:body>` with `target="head"`; `<h:outputScript>` only relocates to `<head>` when `target` is set, otherwise it renders inline where declared.
+`<h:outputStylesheet>` has no `target` attribute at all — its renderer unconditionally relocates the resource into `<head>` regardless of where the tag is declared, so placing it in `<h:body>` is already sufficient.
 These will automatically be rendered as the last entries in `<h:head>`.
 
 ## Dialogs
@@ -31,7 +32,7 @@ PrimeFaces appends dialogs to the end of the HTML `<body>`, so they end up outsi
 
 ## CSS
 
-ALWAYS load the CSS file with custom definitions via a `<h:outputStylesheet target="head">` inside `<h:body>`.
+ALWAYS load the CSS file with custom definitions via `<h:outputStylesheet>` inside `<h:body>` — it always renders in `<head>` regardless (there is no `target` attribute to set; that only exists on `<h:outputScript>`).
 When overriding PrimeFaces-specific CSS, ALWAYS use the exact same selector PrimeFaces is using, and use a separate CSS file from user-defined classes, e.g. `primefaces-overrides.css`.
 
 ## JavaScript
