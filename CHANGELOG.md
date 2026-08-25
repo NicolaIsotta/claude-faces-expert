@@ -1,5 +1,10 @@
 # Changelog
 
+## Unreleased
+
+### PrimeFaces — Fixed
+- The head resources and CSS rules no longer suggest `target="head"` on `<h:outputStylesheet>`. The tag has no `target` attribute; the standard `Stylesheet` renderer is required to relocate the resource into `<head>` unconditionally, so only `<h:outputScript>` needs it. Both must still be declared inside `<h:body>` to end up after the resources contributed by PrimeFaces components (#10).
+
 ## 1.4.2
 
 ### Antigravity Support
