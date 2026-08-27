@@ -2,6 +2,23 @@
 
 ## Unreleased
 
+### Rules — Added
+- New **Build Time** section: a postback runs two builds of the same view, the restoring build in Restore View and the rendering build before Render Response, and what each produces follows from *when* something happened relative to a build rather than from how it was created (https://github.com/jakartaee/faces/pull/2235).
+- Tree manipulation performed while the view is being built, from `<f:event type="postAddToView">`, is reproduced by every build and costs no view state at all; only manipulation performed after the build is recorded and replayed. A move is neither an addition nor a removal and carries parent, facet name and index among siblings. The recorded position travels with the manipulation rather than with the component, since every build creates its components anew.
+- Build time decisions — the test of a conditional, the branch of a choice, the range or items of an iteration, the path of a dynamic inclusion — are reproduced by the restoring build from the saved state since Faces 5.0, so a page must not rely on the restoring build following the current model, and the author does not have to keep the value such a condition depends on alive across the postback. The items of an iteration are the exception: its rows read their element from the items live, so those belong in a `@ViewScoped` bean or are recomputed in `@PostConstruct` of a `@RequestScoped` one.
+- Mojarra replays under `com.sun.faces.restoreBuildTimeDecisions` since 4.0.23/4.1.14 (default off) and `org.glassfish.mojarra.restoreBuildTimeDecisions` since 5.0.0-M6 (default on); MyFaces has always replayed from a `FaceletState`. An application-provided tag handler is run by both builds and is not covered.
+
+### Rules — Fixed
+- Full state saving and the `jakarta.faces.PARTIAL_STATE_SAVING` / `jakarta.faces.FULL_STATE_SAVING_VIEW_IDS` context params are removed in **Faces 5.0**, not 6.0; partial state saving is the only state saving there is from that version on.
+- The JSTL rule no longer claims a `c:if`/`c:forEach` condition may depend on current request state without qualification. It is the rendering build that observes the updated model; the restoring build reproduces the previous decision.
+
+### Diagnostics — Added
+- **Target Unreachable**: an iteration whose items no longer hold the elements its rows were rendered over, reported against the row var.
+- **Input Value Not Updated**: a build time decision that no longer holds, with the Mojarra context param per version line.
+
+### faces-migrate — Fixed
+- The Faces 4.0 → 4.1 step places the removal of full state saving in Faces 5.0, not 6.0.
+
 ### faces-migrate — Added
 - Each incremental step now bumps `web.xml` to the target Servlet version and schema, gated on `web.xml` existing and lagging behind: Servlet 4.0 for JSF 2.3, 5.0 for Faces 3.0, 6.0 for Faces 4.0, 6.1 for Faces 4.1. A pre-Servlet 2.4 DTD `DOCTYPE` is dropped in favor of the XML Schema form (#12).
 - Each incremental step now also bumps `beans.xml` to the target CDI version and schema: CDI 2.0 for JSF 2.3, 3.0 for Faces 3.0, 4.0 for Faces 4.0, 4.1 for Faces 4.1. `bean-discovery-mode` is required next to `version` up to CDI 3.0, and `annotated` is the recommended value since `@Named` plus a CDI scope is a bean defining annotation.

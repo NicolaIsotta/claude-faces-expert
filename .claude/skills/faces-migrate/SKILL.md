@@ -258,7 +258,7 @@ This is purely a package rename; no behavioral changes.
 - When the project overrides the standard message bundle (`jakarta/faces/Messages*.properties`) or declares a `<message-bundle>`, report the keys that Faces 4.1 adds so the developer can supply translations. Faces 4.1 adds two, for the new `UUIDConverter`:
   - `jakarta.faces.converter.UUIDConverter.UUID`
   - `jakarta.faces.converter.UUIDConverter.UUID_detail`
-- Full state saving is deprecated for removal since 4.1 and will be gone in Faces 6.0. Both context params in `web.xml` are affected:
+- Full state saving is deprecated for removal since 4.1 and is removed in Faces 5.0, along with both its context params in `web.xml`. Migrating them off now is what makes the next jump a version bump rather than a rewrite:
   - `jakarta.faces.PARTIAL_STATE_SAVING`: remove it when set to `true`, which is the default since 2.0. When set to `false`, report it rather than removing it; the application is running on full state saving and removing the param flips it onto partial state saving, which surfaces any custom component that does not save its state correctly; fix those first.
   - `jakarta.faces.FULL_STATE_SAVING_VIEW_IDS`: report the listed view IDs, which need the same treatment per view.
 - Replace the `ActionSource2` types, all deprecated for removal since 4.1; their members moved to the `ActionSource` counterpart:

@@ -14,7 +14,8 @@ Every Faces request passes through up to 6 phases in this order:
 - During view building, only these expressions are evaluated (causing getter calls on backing beans):
   - Any attribute of a Facelets template tag (e.g. `<ui:include>`, `<ui:repeat>`) and JSTL core tag (e.g. `<c:if>`, `<c:forEach>`).
   - Only the `id` and `binding` attributes of Faces components; all other component attributes are NOT evaluated during view build.
-- On postback, the view state delta from the previous response is applied to restore the tree to its previous state.
+- This is the **restoring build**. It reproduces the additions, removals and moves performed while the view was being built, and the build time decisions the previous render reached; it does not reflect what the application did to the tree after that build.
+- On postback, the view state delta from the previous response is applied to restore the tree to its previous state, along with the manipulations recorded after the build.
 - On initial (non-postback/GET) request, an empty view is created; if the view has NO `<f:viewParam>` and NO `<f:viewAction>` in its `<f:metadata>`, the lifecycle skips directly to Render Response. Otherwise (at least one `<f:viewParam>` and/or `<f:viewAction>` is present), the request continues through ALL phases.
 - `@PostConstruct` on backing beans is called when the bean is first referenced during this phase (or any later phase).
 - `<f:viewAction>` is invoked during Invoke Application (phase 5), AFTER `<f:viewParam>` values have been applied in Update Model Values; on initial GET requests by default, also on postbacks if `onPostback="true"`.
@@ -88,3 +89,4 @@ The lifecycle explains many rules:
 - **`immediate="true"` behavior**: it moves conversion/validation to Apply Request Values, before non-immediate components are processed.
 - **`rendered="false"` blocks decoding**: a component that evaluates `rendered="false"` during Apply Request Values will not process its submitted value; likewise for `disabled="true"` and `readonly="true"`.
 - **JSTL is build-time**: JSTL tags execute during Restore View (view build) while the component tree is being populated; `rendered` is evaluated during Render Response on the already-built tree.
+- **A postback builds the view twice**: once in Restore View (the restoring build) and once before Render Response (the rendering build). The restoring build reproduces what the previous render produced, so the view that is restored is the view that was submitted; the rendering build evaluates every build time condition again, so the view that is rendered follows the current model. That is why a build time condition decides one phase later than a `PostAddToViewEvent` listener, which runs in whichever build first produces the component it is registered on — normally the restoring build, hence before Update Model Values and before any action is invoked. See the Build Time rules in `.claude/faces/rules.md`.

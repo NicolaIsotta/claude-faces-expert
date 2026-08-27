@@ -51,6 +51,8 @@ Symptom: `jakarta.el.PropertyNotFoundException: Target Unreachable, identifier '
 6. **Missing/wrong `beans.xml`**: Needs `bean-discovery-mode="all"` or `"annotated"` in `WEB-INF/`.
 7. **Deployment error**: Check server startup logs for class loading failures.
 8. **Map/list key doesn't exist**: `#{bean.map['key'].foo}` fails if map is null or key missing.
+9. **Iteration items gone on postback**, reported against the row var (`identifier 'row' resolved to null`): the rows of a build-time iteration read their element from the items live, never from the view state, so items that no longer hold them leave the rows resolving to null.
+   Keep the items in a `@ViewScoped` bean, or recompute them from the relevant request parameters in the `@PostConstruct` of a `@RequestScoped` one. Saving the rows does not repair it — an element the model no longer holds cannot be restored from anywhere.
 
 ## ViewExpiredException
 
@@ -105,6 +107,9 @@ Symptom: `UIInput` values don't reach the backing bean setter when form is submi
 5. **`disabled` or `readonly`**: Disabled inputs are not submitted by browser and readonly inputs are not processed by Faces.
 6. **`<f:ajax execute>`/`<p:ajax process>` of `UICommand` excludes the `UIInput`**: Add the input ID or set to `execute="@form"`/`process="@form"`.
 7. **Getter creates new wrapper object each call**: Initialize in `@PostConstruct` and return same instance.
+8. **Build time decision no longer holds**: a `<c:if>`, `<c:choose>`, `<c:forEach>` or `<ui:include>` that evaluates to something else than it did while the response was rendered makes the restoring build produce a different view than the one that was submitted, so the value submitted for a component it no longer produces is decoded by nothing and the state saved for it is restored into nothing.
+   Faces 5.0 requires the restoring build to reproduce the decisions the previous render reached. On Mojarra 4.0.23/4.1.14+ enable `com.sun.faces.restoreBuildTimeDecisions` (default `false`); on 5.0.0-M6+ it is `org.glassfish.mojarra.restoreBuildTimeDecisions` and on by default. MyFaces replays from its `FaceletState` and needs no param.
+   Where the condition is an iteration, keep the items alive instead — its rows read their element from the items, not from the state.
 
 ## Component Not Found for Update/Render
 
@@ -120,4 +125,4 @@ Symptom: `Cannot find component with expression "componentId" referenced from "s
 5. **Dynamic iteration ID**: Inside `<ui:repeat>`/`UIData`, IDs include row index.
    Update the entire container instead.
 6. **Typo**: Inspect rendered HTML for the actual client ID.
-7. **Dynamically added component not yet in tree**: Use `rendered` attribute instead of programmatic tree manipulation.
+7. **Dynamically added component not yet in tree**: Use `rendered` attribute instead of programmatic tree manipulation, or add it while the view is being built from `<f:event type="postAddToView">`.
