@@ -33,4 +33,12 @@ If you open a PR against `main`, you'll be asked to retarget it to `develop`.
 
 ## Releases
 
-Maintainers release by bumping `Version X.Y.Z` across `README.md`, `.claude/faces/rules.md`, all topic files under `.claude/faces/topics/`, and both skill `SKILL.md` files, plus a new `CHANGELOG.md` section. Contributors don't need to touch versions — leave that to the release commit.
+Contributors don't need to touch versions — leave that to the release commit. Maintainers cut one as follows.
+
+1. Bump `Version X.Y.Z` across `README.md`, `.claude/faces/rules.md`, all topic files under `.claude/faces/topics/`, and every skill's `SKILL.md`.
+2. Rename the `## Unreleased` heading in `CHANGELOG.md` to `## X.Y.Z`. No fresh `## Unreleased` heading is seeded; the next change to land adds one back.
+3. Commit those files together with `CHANGELOG.md`, subject `Release X.Y.Z`, on `develop`. Nothing else belongs in a release commit.
+4. Tag the release commit `X.Y.Z` — lightweight, no `v` prefix — and push the tag.
+5. Fast-forward `main` to the release commit and push it. `main` therefore always points at the most recent release.
+
+No GitHub Release is published; the tag is the release. The `protect-main-develop` ruleset requires a pull request on both branches, which a maintainer bypasses by repository role for steps 3 and 5.
