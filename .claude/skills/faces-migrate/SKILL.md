@@ -78,6 +78,15 @@ This is a significant migration; confirm scope with developer before proceeding.
   ```
 - Update XML namespaces from `java.sun.com` to `xmlns.jcp.org` (if on JSF 2.2+).
 - Use HTML5 doctype `<!DOCTYPE html>` (if on JSF 2.2+).
+- If the project has a `web.xml` and its declared version lags behind Servlet 4.0 (Java EE 8), update it. If it still carries a legacy DTD-based `DOCTYPE` declaration (pre-Servlet 2.4), drop it entirely — the XML Schema `xmlns`/`xsi:schemaLocation` form below replaces it.
+  ```xml
+  <web-app
+      xmlns="http://xmlns.jcp.org/xml/ns/javaee"
+      xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xsi:schemaLocation="http://xmlns.jcp.org/xml/ns/javaee http://xmlns.jcp.org/xml/ns/javaee/web-app_4_0.xsd"
+      version="4.0"
+  >
+  ```
 - Review for new 2.3 features to adopt: https://arjan-tijms.omnifaces.org/p/jsf-23.html
 
 ### JSF 2.3 → Faces 3.0 (Jakarta EE 9, namespace rename)
@@ -121,6 +130,15 @@ This is purely a package rename; no behavioral changes.
   ```
 - NOTE: XHTML namespaces stay the same (`xmlns.jcp.org`) in Faces 3.0; they only change in 4.0.
 - Use HTML5 doctype `<!DOCTYPE html>` (if not already).
+- If the project has a `web.xml` and its declared version lags behind Servlet 5.0 (Jakarta EE 9), update it.
+  ```xml
+  <web-app
+      xmlns="https://jakarta.ee/xml/ns/jakartaee"
+      xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xsi:schemaLocation="https://jakarta.ee/xml/ns/jakartaee https://jakarta.ee/xml/ns/jakartaee/web-app_5_0.xsd"
+      version="5.0"
+  >
+  ```
 
 ### Faces 3.0 → Faces 4.0+ (Jakarta EE 10+, spec overhaul)
 
@@ -156,6 +174,15 @@ This is purely a package rename; no behavioral changes.
   >
   ```
 - Use HTML5 doctype `<!DOCTYPE html>` (if not already).
+- If the project has a `web.xml` and its declared version lags behind Servlet 6.0 (Jakarta EE 10), update it.
+  ```xml
+  <web-app
+      xmlns="https://jakarta.ee/xml/ns/jakartaee"
+      xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xsi:schemaLocation="https://jakarta.ee/xml/ns/jakartaee https://jakarta.ee/xml/ns/jakartaee/web-app_6_0.xsd"
+      version="6.0"
+  >
+  ```
 - Review for new 4.0 features to adopt: https://balusc.omnifaces.org/2021/11/whats-new-in-faces-40.html
 
 ### Faces 4.0 → Faces 4.1 (Jakarta EE 11, incremental)
@@ -177,6 +204,15 @@ This is purely a package rename; no behavioral changes.
       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
       xsi:schemaLocation="https://jakarta.ee/xml/ns/jakartaee https://jakarta.ee/xml/ns/jakartaee/web-facelettaglibrary_4_1.xsd"
       version="4.1"
+  >
+  ```
+- If the project has a `web.xml` and its declared version lags behind Servlet 6.1 (Jakarta EE 11), update it.
+  ```xml
+  <web-app
+      xmlns="https://jakarta.ee/xml/ns/jakartaee"
+      xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xsi:schemaLocation="https://jakarta.ee/xml/ns/jakartaee https://jakarta.ee/xml/ns/jakartaee/web-app_6_1.xsd"
+      version="6.1"
   >
   ```
 - When the project overrides the standard message bundle (`jakarta/faces/Messages*.properties`) or declares a `<message-bundle>`, report the keys that Faces 4.1 adds so the developer can supply translations. Faces 4.1 adds two, for the new `UUIDConverter`:
