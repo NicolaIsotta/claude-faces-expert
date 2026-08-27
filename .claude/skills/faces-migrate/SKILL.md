@@ -61,18 +61,18 @@ This is a significant migration; confirm scope with developer before proceeding.
 - Update `faces-config.xml` version to `2.3`.
   ```xml
   <faces-config 
-      xmlns="https://xmlns.jcp.org/xml/ns/javaee"
+      xmlns="http://xmlns.jcp.org/xml/ns/javaee"
       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-      xsi:schemaLocation="https://xmlns.jcp.org/xml/ns/javaee https://xmlns.jcp.org/xml/ns/javaee/web-facesconfig_2_3.xsd"
+      xsi:schemaLocation="http://xmlns.jcp.org/xml/ns/javaee http://xmlns.jcp.org/xml/ns/javaee/web-facesconfig_2_3.xsd"
       version="2.3"
   >
   ```
 - Update `*.taglib.xml` version to `2.3`.
   ```xml
   <facelet-taglib 
-      xmlns="https://xmlns.jcp.org/xml/ns/javaee"
+      xmlns="http://xmlns.jcp.org/xml/ns/javaee"
       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-      xsi:schemaLocation="https://xmlns.jcp.org/xml/ns/javaee https://xmlns.jcp.org/xml/ns/javaee/web-facelettaglibrary_2_3.xsd"
+      xsi:schemaLocation="http://xmlns.jcp.org/xml/ns/javaee http://xmlns.jcp.org/xml/ns/javaee/web-facelettaglibrary_2_3.xsd"
       version="2.3"
   >
   ```
