@@ -40,5 +40,11 @@ Contributors don't need to touch versions — leave that to the release commit. 
 3. Commit those files together with `CHANGELOG.md`, subject `Release X.Y.Z`, on `develop`. Nothing else belongs in a release commit.
 4. Tag the release commit `X.Y.Z` — lightweight, no `v` prefix — and push the tag.
 5. Fast-forward `main` to the release commit and push it. `main` therefore always points at the most recent release.
+6. Publish a GitHub Release for the tag, taking the notes from the `CHANGELOG.md` section so the changelog stays the single source of truth:
+   ```bash
+   gh release create X.Y.Z --verify-tag --title X.Y.Z --latest \
+       --notes "$(awk '/^## X.Y.Z$/ { on = 1; next } on && /^## / { exit } on' CHANGELOG.md)"
+   ```
+   This is what notifies anyone watching the repository for releases, and what makes `/releases/latest` resolve.
 
-No GitHub Release is published; the tag is the release. The `protect-main-develop` ruleset requires a pull request on both branches, which a maintainer bypasses by repository role for steps 3 and 5.
+The `protect-main-develop` ruleset requires a pull request on both branches, which a maintainer bypasses by repository role for steps 3 and 5.
