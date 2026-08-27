@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 1.5.0
 
 ### Documentation — Changed
 - **CONTRIBUTING.md**: the Releases section spells out the whole procedure — the files that carry the version, renaming the `## Unreleased` heading, the `Release X.Y.Z` commit on `develop`, the lightweight tag without a `v` prefix, and the fast-forward of `main` onto it. No GitHub Release is published; the tag is the release.
