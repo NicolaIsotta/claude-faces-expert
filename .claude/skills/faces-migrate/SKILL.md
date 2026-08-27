@@ -54,7 +54,6 @@ This is a significant migration; confirm scope with developer before proceeding.
 - Update `pom.xml` to JSF 2.3 dependency.
 - Replace `@ManagedBean` + `@javax.faces.bean.*Scoped` with `@Named` + `@javax.enterprise.context.*Scoped`.
 - `@ViewScoped`: replace `javax.faces.bean.ViewScoped` with `javax.faces.view.ViewScoped`.
-- Ensure `beans.xml` exists in `WEB-INF/` with `bean-discovery-mode="all"` or `"annotated"`.
 - Replace `@javax.faces.bean.ManagedProperty` on managed beans with `@Inject`.
 - Replace `@javax.faces.bean.ManagedProperty` on unmanaged variables with `@javax.faces.annotation.ManagedProperty`.
 - FacesServlet: ensure URL pattern is `*.xhtml`; remove legacy `*.jsf`, `*.faces`, `/faces/*` mappings.
@@ -85,6 +84,16 @@ This is a significant migration; confirm scope with developer before proceeding.
       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
       xsi:schemaLocation="http://xmlns.jcp.org/xml/ns/javaee http://xmlns.jcp.org/xml/ns/javaee/web-app_4_0.xsd"
       version="4.0"
+  >
+  ```
+- Ensure `beans.xml` exists in `WEB-INF/`, and update it to CDI 2.0 (Java EE 8) when it lags behind. Once a `version` attribute is present, `bean-discovery-mode` is required alongside it. Prefer `annotated`: `@Named` plus a CDI scope is a bean defining annotation, so Faces beans are discovered either way.
+  ```xml
+  <beans
+      xmlns="http://xmlns.jcp.org/xml/ns/javaee"
+      xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xsi:schemaLocation="http://xmlns.jcp.org/xml/ns/javaee http://xmlns.jcp.org/xml/ns/javaee/beans_2_0.xsd"
+      version="2.0"
+      bean-discovery-mode="annotated"
   >
   ```
 - Review for new 2.3 features to adopt: https://arjan-tijms.omnifaces.org/p/jsf-23.html
@@ -139,6 +148,16 @@ This is purely a package rename; no behavioral changes.
       version="5.0"
   >
   ```
+- Update `beans.xml` namespace and version to CDI 3.0 (Jakarta EE 9), keeping the existing `bean-discovery-mode`, which stays required next to `version`.
+  ```xml
+  <beans
+      xmlns="https://jakarta.ee/xml/ns/jakartaee"
+      xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xsi:schemaLocation="https://jakarta.ee/xml/ns/jakartaee https://jakarta.ee/xml/ns/jakartaee/beans_3_0.xsd"
+      version="3.0"
+      bean-discovery-mode="annotated"
+  >
+  ```
 
 ### Faces 3.0 → Faces 4.0+ (Jakarta EE 10+, spec overhaul)
 
@@ -183,6 +202,17 @@ This is purely a package rename; no behavioral changes.
       version="6.0"
   >
   ```
+- Make `bean-discovery-mode` explicit in `beans.xml` BEFORE bumping it to CDI 4.0. Up to CDI 3.0 an empty or version-less `beans.xml` meant `all`; since CDI 4.0 the attribute is optional and defaults to `annotated`. Every bean without a bean defining annotation then stops being discovered at runtime, and nothing fails at build time. Report the choice: keep `all` to preserve current behavior, or move to `annotated` and annotate the beans that need it.
+- Update `beans.xml` version to CDI 4.0 (Jakarta EE 10), keeping the `bean-discovery-mode` decided above.
+  ```xml
+  <beans
+      xmlns="https://jakarta.ee/xml/ns/jakartaee"
+      xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xsi:schemaLocation="https://jakarta.ee/xml/ns/jakartaee https://jakarta.ee/xml/ns/jakartaee/beans_4_0.xsd"
+      version="4.0"
+      bean-discovery-mode="annotated"
+  >
+  ```
 - Review for new 4.0 features to adopt: https://balusc.omnifaces.org/2021/11/whats-new-in-faces-40.html
 
 ### Faces 4.0 → Faces 4.1 (Jakarta EE 11, incremental)
@@ -215,6 +245,16 @@ This is purely a package rename; no behavioral changes.
       version="6.1"
   >
   ```
+- Update `beans.xml` version to CDI 4.1 (Jakarta EE 11), keeping the existing `bean-discovery-mode`.
+  ```xml
+  <beans
+      xmlns="https://jakarta.ee/xml/ns/jakartaee"
+      xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xsi:schemaLocation="https://jakarta.ee/xml/ns/jakartaee https://jakarta.ee/xml/ns/jakartaee/beans_4_1.xsd"
+      version="4.1"
+      bean-discovery-mode="annotated"
+  >
+  ```
 - When the project overrides the standard message bundle (`jakarta/faces/Messages*.properties`) or declares a `<message-bundle>`, report the keys that Faces 4.1 adds so the developer can supply translations. Faces 4.1 adds two, for the new `UUIDConverter`:
   - `jakarta.faces.converter.UUIDConverter.UUID`
   - `jakarta.faces.converter.UUIDConverter.UUID_detail`
@@ -240,6 +280,7 @@ For each applicable migration step:
 After migration:
 - Check for any remaining old-version references (grep for old package names, old namespaces, old annotations).
 - Check for any remaining `javax.` keys in `*.properties` files and for a leftover `javax/faces/` resource directory; these fail silently rather than at build time.
+- Check that `faces-config.xml`, `web.xml` and `beans.xml` each declare a version no higher than the Faces, Servlet resp. CDI API the runtime supplies, and no lower than needed for the descriptor features in use.
 - Verify `pom.xml`/`build.gradle` has no conflicting dependency versions.
 - Suggest running `/faces-review` to catch any remaining issues.
 

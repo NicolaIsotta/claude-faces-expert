@@ -2,6 +2,12 @@
 
 ## Unreleased
 
+### faces-migrate — Added
+- Each incremental step now bumps `web.xml` to the target Servlet version and schema, gated on `web.xml` existing and lagging behind: Servlet 4.0 for JSF 2.3, 5.0 for Faces 3.0, 6.0 for Faces 4.0, 6.1 for Faces 4.1. A pre-Servlet 2.4 DTD `DOCTYPE` is dropped in favor of the XML Schema form (#12).
+- Each incremental step now also bumps `beans.xml` to the target CDI version and schema: CDI 2.0 for JSF 2.3, 3.0 for Faces 3.0, 4.0 for Faces 4.0, 4.1 for Faces 4.1. `bean-discovery-mode` is required next to `version` up to CDI 3.0, and `annotated` is the recommended value since `@Named` plus a CDI scope is a bean defining annotation.
+- The Faces 3.0 → 4.0 step makes `bean-discovery-mode` explicit before the bump. Up to CDI 3.0 an empty or version-less `beans.xml` meant `all`; since CDI 4.0 the attribute defaults to `annotated`, so every bean without a bean defining annotation silently stops being discovered at runtime while the build stays green.
+- The verification step checks each of `faces-config.xml`, `web.xml` and `beans.xml` against the Faces, Servlet resp. CDI API version the runtime supplies.
+
 ### PrimeFaces — Fixed
 - The head resources and CSS rules no longer suggest `target="head"` on `<h:outputStylesheet>`. The tag has no `target` attribute; the standard `Stylesheet` renderer is required to relocate the resource into `<head>` unconditionally, so only `<h:outputScript>` needs it. Both must still be declared inside `<h:body>` to end up after the resources contributed by PrimeFaces components (#10).
 
