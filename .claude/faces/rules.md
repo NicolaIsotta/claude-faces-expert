@@ -289,7 +289,7 @@ Source code (all versions, select the branch for the version at hand):
 Unreleased — there is no published spec, javadoc or VDL doc. Read the source instead:
 
 - API + spec: https://github.com/jakartaee/faces, branch `5.0` (spec asciidoc under `spec/src/main/asciidoc`, API under `api/src/main/java`, XSDs under `api/src/main/xsd`, TCK under `tck/faces50`)
-- Mojarra: https://github.com/eclipse-ee4j/mojarra, branch `master`
+- Mojarra: https://github.com/eclipse-ee4j/mojarra, branch `5.0` (`main` is the 4.1 line)
 - MyFaces: https://github.com/apache/myfaces, branch `main`
 
 An API present on these branches is NOT available to a project on 4.x; see "Version Discipline".

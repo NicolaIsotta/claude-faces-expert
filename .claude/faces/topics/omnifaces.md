@@ -37,6 +37,7 @@ OmniFaces provides several converters that fill gaps in the standard API.
   </h:inputText>
   ```
 - **`ValueChangeConverter`**: abstract base class — extend and override `getAsChangedObject()` instead of `getAsObject()` to skip conversion when the submitted value hasn't changed; use for converters that perform expensive operations (e.g. database lookups) on `@ViewScoped` beans.
+- **`<o:converter>`**: not a converter but a taghandler that replaces `<f:converter>` (and any `<f:convertXxx>`, by its converter ID) with DEFERRED value expressions in every attribute — see `<o:validator>` under Validators below for the full contract. It shares the deferred attribute behavior but has no `message` and no `disabled` of its own.
 
 ## FullAjaxExceptionHandler
 
@@ -207,6 +208,36 @@ Fixes broken `required="true"` on `<h:selectBooleanCheckbox>` — standard Faces
 
 Abstract base class — extend and override `validateChangedObject(FacesContext, UIComponent, T)` instead of `validate()` to skip validation when the submitted value hasn't changed. Use for validators that perform expensive operations (e.g. database uniqueness checks) on `@ViewScoped` beans. Companion to `ValueChangeConverter`.
 
+### <o:validator> and <o:converter>
+
+Taghandlers replacing `<f:validator>`/`<f:converter>` (and any `<f:validateXxx>`/`<f:convertXxx>`, addressed by its ID) so that every attribute takes a DEFERRED value expression: it is re-evaluated on every access instead of once at view build time, like a component attribute.
+
+```xml
+<h:inputText value="#{item.amount}">
+    <o:validator validatorId="jakarta.faces.LongRange" minimum="#{item.minimum}" maximum="#{item.maximum}"
+        message="Please enter between #{item.minimum} and #{item.maximum}" />
+</h:inputText>
+<h:outputText value="#{item.date}">
+    <o:converter converterId="jakarta.faces.DateTime" pattern="#{item.pattern}" />
+</h:outputText>
+```
+
+Both require a parent component: `<o:validator>` an `EditableValueHolder`, `<o:converter>` a `ValueHolder`. Placed anywhere else they fall through to the standard taghandler.
+
+- Use whenever an attribute value is not a literal: values that differ per iteration inside `<ui:repeat>`/`<h:dataTable>`, values that change between postbacks (the standard tags freeze them at the first build), or attributes on a custom converter/validator that would otherwise need a tag file or a custom `ConverterHandler`/`ValidatorHandler`.
+- `<o:validator>` adds two attributes over `<f:validator>`: `message` (per-validator message, `{0}` = the input's label, ignored when the parent already has `validatorMessage`) and a deferred `disabled`. `<o:converter>` adds neither — it declares only `converterId`, `binding` and `for`, and its `disabled` is hardwired to `false`. `validatorId`/`converterId`, `binding` and `for` otherwise behave as in the standard tags.
+- Attributes are matched to JavaBean setters on the converter/validator instance by name; one without a matching setter is silently ignored.
+- **`managed=true` MUST be absent** on a `@FacesConverter`/`@FacesValidator` class configured this way, on every implementation except Mojarra 5.0 and newer: the implementation then hands out a wrapper that carries none of the class's own setters, so every attribute is silently dropped. Injection is not lost by removing it — `ConverterManager`/`ValidatorManager` below take over.
+
+### ConverterManager and ValidatorManager
+
+`OmniApplication` routes every `Application.createConverter()`/`createValidator()` through `org.omnifaces.cdi.converter.ConverterManager`/`org.omnifaces.cdi.validator.ValidatorManager`, which resolve every `@FacesConverter`/`@FacesValidator` annotated class WITHOUT `managed=true` as a CDI bean. So on Faces 4.x, `@Inject` in a converter/validator works with OmniFaces on the classpath and no `managed=true` — which is exactly what `<o:converter>`/`<o:validator>` need.
+
+- Give such a class `@Dependent`: it is needed for CDI discovery under `bean-discovery-mode="annotated"` (the CDI 4.0 default), and it keeps every attachment on its own instance so the attributes set by `<o:validator>` cannot leak into another attachment of the same class.
+- Only annotated classes are covered; one registered in `faces-config.xml` gets no injection.
+- The `forClass` path is narrower: `createConverter(Application, Class)` resolves a bean only when the converter class has a public no-arg constructor and declares no public `Class` argument constructor. Constructors are not inherited, so a subclass of `EnumConverter` declaring only a no-arg constructor is still injected. The converter ID path carries no such guard.
+- For the full rules, including the standard-versus-`<o:validator>` mixing hazards and what changes in Faces 5.0, see `.claude/faces/topics/conversion-validation.md`.
+
 ### Multi-Field Validators
 
 Validate multiple related input fields together. All share these common attributes:
@@ -252,4 +283,3 @@ API docs: https://omnifaces.org/docs/javadoc/current/org.omnifaces/org/omnifaces
 - Java API: https://omnifaces.org/docs/javadoc/current/
 - VDL (tag docs): https://omnifaces.org/docs/vdldoc/current/
 - Showcase with examples: https://showcase.omnifaces.org
- 

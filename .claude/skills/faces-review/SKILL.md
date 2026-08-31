@@ -97,6 +97,7 @@ Because these findings are the most prone to false positives, each one MUST stat
 
 ### OmniFaces (if present)
 - Consult `.claude/faces/topics/omnifaces.md` and check for opportunities to simplify code.
+- A `@FacesConverter`/`@FacesValidator` class whose attributes are set by `<o:converter>`/`<o:validator>`: `managed=true` MUST be absent — report `error`, since the implementation wraps a managed artifact and every attribute is then silently dropped — and the class should be `@Dependent`. Condition this on the implementation rather than the spec version: only Mojarra 5.0 and newer is exempt, MyFaces still wraps on its 5.0 snapshots. Report `warning` when such a class is ALSO attached the standard way (`validator="id"`, `<f:validator>`, `converter="id"`, `<f:converter>`, `<default-validators>`), because it then runs unconfigured there. See "Deferred Attributes" in `.claude/faces/topics/conversion-validation.md`.
 
 ## Step 3: Validate Proposed Fixes
 
