@@ -2,19 +2,19 @@
 
 ## Unreleased
 
+### Documentation — Changed
+- **CONTRIBUTING.md**: releasing now publishes a GitHub Release for the tag, with the notes taken from the matching `CHANGELOG.md` section. That is what notifies anyone watching the repository for releases, and what makes `/releases/latest` resolve. Every release from 1.0.0 on has one.
+
 ### Rules — Added
 - New **Deferred Attributes** section under Custom Validators in `conversion-validation.md`, covering OmniFaces `<o:validator>`/`<o:converter>`: every attribute is a deferred value expression re-evaluated on every access, which is what makes per-iteration attribute values, attribute values that change between postbacks, and attributes on a custom converter/validator possible without a tag file or a custom handler.
-- From JSF 2.3 through Faces 4.1, `managed=true` MUST be absent on a `@FacesConverter`/`@FacesValidator` class whose attributes are set by `<o:converter>`/`<o:validator>`: Mojarra hands out a `CdiValidator`/`CdiConverter` and MyFaces a `FacesValidatorCDIWrapper`/`FacesConverterCDIWrapper`, neither of which carries the class's own setters, so every attribute is dropped silently. Removing it does not cost the injection, since OmniFaces `ConverterManager`/`ValidatorManager` manage exactly the annotated classes without `managed=true` — but only with OmniFaces on the classpath.
-- Warn when one converter/validator class is attached both via `<o:validator>`/`<o:converter>` and the standard way: it MUST be `@Dependent`, or the shared instance lets the attributes set by the OmniFaces attachment leak into the standard one, which sets none itself. Also covers `@Dependent` for CDI discovery under `bean-discovery-mode="annotated"`, `@Specializes` for `AmbiguousResolutionException`, and the double validation when the class is additionally a default validator.
-- Faces 5.0 drops this conflict on Mojarra — `managed` is `@Nonbinding` and ignored, and `CdiUtils` returns the CDI reference itself with no wrapper — while MyFaces 5.0 snapshots still key off `managed()` and still wrap.
+- `managed=true` MUST be absent on a `@FacesConverter`/`@FacesValidator` class whose attributes are set by `<o:converter>`/`<o:validator>`: Mojarra hands out a `CdiValidator`/`CdiConverter` and MyFaces a `FacesValidatorCDIWrapper`/`FacesConverterCDIWrapper`, neither of which carries the class's own setters, so `MetaTagHandler` finds no setter and drops every attribute silently (https://github.com/eclipse-ee4j/mojarra/issues/4814). Removing it does not cost the injection, since OmniFaces `ConverterManager`/`ValidatorManager` manage the annotated classes without `managed=true` — but only with OmniFaces on the classpath, and for a `forClass` converter only when the class declares no public `Class` argument constructor.
+- Warn when one converter/validator class is attached both via `<o:validator>`/`<o:converter>` and the standard way: it MUST be `@Dependent`, or the instance shared by its scope lets the attributes set by the OmniFaces attachment leak into the standard one, which sets none itself. Also covers `@Dependent` for CDI discovery under `bean-discovery-mode="annotated"`, `@Specializes` for `AmbiguousResolutionException`, and the double validation when the class is additionally a default validator.
+- Faces 5.0 drops the wrapper conflict on Mojarra — `managed` is `@Nonbinding` and ignored, and `CdiUtils` returns the CDI reference itself — while MyFaces 5.0 snapshots still key off `managed()` and still wrap, so the rule keys off the implementation rather than the spec version.
 - `faces-review`: the OmniFaces checklist reports `managed=true` on a class configured by `<o:converter>`/`<o:validator>` as an error, and mixing that with a standard attachment as a warning.
 
 ### Rules — Fixed
 - The `<o:converter>`/`<o:validator>` tags are now named as the direct fix for the "dynamic converter/validator config is not re-applied on postback" pitfall.
 - Faces 5.0 source reference: Mojarra's 5.0 development happens on branch `5.0`, not `master` (which no longer exists); its `main` branch carries the 4.1 line.
-
-### Documentation — Changed
-- **CONTRIBUTING.md**: releasing now publishes a GitHub Release for the tag, with the notes taken from the matching `CHANGELOG.md` section. That is what notifies anyone watching the repository for releases, and what makes `/releases/latest` resolve. Every release from 1.0.0 on has one.
 
 ## 1.5.0
 
