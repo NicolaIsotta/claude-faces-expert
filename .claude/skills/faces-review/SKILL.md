@@ -70,10 +70,33 @@ Because these findings are the most prone to false positives, each one MUST stat
 - Ajax `render`/`update` references across `NamingContainer` boundaries use full client ID with leading colon.
 - JSTL tags are only used for build-time view construction, not for conditional rendering (use `rendered` attribute instead).
 - No inline styles; CSS is in separate files.
-- Templates, includes, tag files, and composites are inside `/WEB-INF/` to prevent direct client access.
-- Resources (scripts, styles, images) are referenced via `<h:outputScript>`, `<h:outputStylesheet>`, `<h:graphicImage>`, or `#{resource[]}`; when `WEBAPP_RESOURCES_DIRECTORY` is set to `WEB-INF/resources`, verify resources are actually in that location.
+- Resources are referenced via `<h:outputScript>`, `<h:outputStylesheet>`, `<h:graphicImage>`, or `#{resource[]}`, never by a hardcoded path; a hardcoded path bypasses any `ResourceHandler`, including those possibly adding cache busting.
 - No duplicate/copy-pasted XHTML blocks; reusable code is in templates, includes, tag files, or composite components.
 - File download commands do not use ajax (or use `<p:fileDownload>` if PrimeFaces).
+
+### Directory Structure
+
+Run this over every `.xhtml` OUTSIDE `/WEB-INF/`, before reporting on what any of them contain. It is a check on WHERE each file is, so a file whose contents are flawless still fails it — passing the XHTML checklist above is not grounds for clearing a file here, and a report that clears an `.xhtml` outside `/WEB-INF/` without naming its kind has skipped this section.
+
+Classify each one, because the webapp root is the correct home for exactly one kind:
+
+| Kind | How to recognize it | Verdict |
+|---|---|---|
+| View | none of the below — a page a user navigates to | correct where it is |
+| Template | contains `<ui:insert>`, or another file points `template=` at it | `error` |
+| Include | another file points `<ui:include src=>` at it | `error` |
+| Tag file | declared in a `*.taglib.xml` | `error` |
+| Composite | contains `<cc:interface>` — that alone is the marker; the root is usually `<ui:component>` but `<ui:composition>` is equally valid, so never key recognition off the root element | `warning` |
+| Asset (script, style, image, font) | not `.xhtml`; under the resources directory | `warning` |
+
+The severities differ because the fixes do. Moving a template, include or tag file into `/WEB-INF/` needs no configuration — only the `template`/`src` references to it have to follow. Moving a composite or asset has TWO halves, and either alone breaks the application: move the files into `/WEB-INF/resources/` AND set `jakarta.faces.WEBAPP_RESOURCES_DIRECTORY` to `WEB-INF/resources`. Name both in the fix.
+
+State the exposure from the `FacesServlet` mapping rather than assuming source disclosure:
+
+- Mapped to `*.xhtml` (the recommended mapping): the file is processed, not served, so the source does NOT leak. What is reachable is the file rendered standalone at its own URL, outside the view that was meant to supply its `ui:param` values or `cc.attrs`, its `f:metadata`, and its access checks.
+- Mapped only to a legacy pattern (`*.jsf`, `*.faces`, `/faces/*`), which overrides the implicit `*.xhtml` mapping: `*.xhtml` reaches the container's default servlet and the raw Facelets source is downloadable — EL expressions, bean and property names, and markup a `rendered` attribute would have withheld. Confirm no `<security-constraint>` covers `*.xhtml` before reporting the source as exposed; that constraint is the other way a project blocks this.
+
+`/WEB-INF/` closes both cases whatever the mapping. Report the composite before a plain asset when both apply, since a composite exposes its `<cc:implementation>` while an asset exposes only itself.
 
 ### Backing Beans
 - Bean declaration, scope choice, `Serializable`, `@PostConstruct` initialization and getter purity all follow "CDI and Bean Management" and "Scope Selection" in `.claude/faces/rules.md`.

@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Rules — Fixed
+- `faces-review`: the location of a Facelets file is now checked in its own **Directory Structure** section of the review checklist, run over every `.xhtml` outside `/WEB-INF/` before the checks on what those files contain. It classifies each one — view, template, include, tag file, composite — since the webapp root is the correct home for a view and a finding for everything else, and passing the content checks is not grounds for clearing a file on location. A template, include or tag file outside `/WEB-INF/` is an `error`; a composite or asset is a `warning`, because that fix has two halves — moving the files into `/WEB-INF/resources/` AND setting `jakarta.faces.WEBAPP_RESOURCES_DIRECTORY` to `WEB-INF/resources`, either alone leaving them unresolvable or 404. A composite is recognized by containing `<cc:interface>`, never by its root element, which is `<ui:component>` or `<ui:composition>` interchangeably.
+- `faces-review`: the exposure such a file carries now follows the `FacesServlet` mapping instead of being assumed to be source disclosure. Under the recommended `*.xhtml` mapping the file is processed rather than served, so what is reachable is the file rendered standalone outside the view meant to supply its `ui:param` values or `cc.attrs`, its `f:metadata` and its access checks. Only a legacy-only mapping (`*.jsf`, `*.faces`, `/faces/*`), which overrides the implicit `*.xhtml` one, drops `*.xhtml` to the container's default servlet and makes the Facelets source downloadable — and then only where no `<security-constraint>` covers it.
+
 ## 1.6.0
 
 ### Documentation — Changed
