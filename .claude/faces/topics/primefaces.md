@@ -8,6 +8,9 @@ PrimeFaces is the most widely used component library for Jakarta Faces. When thi
 
 - PrimeFaces `UICommand` (e.g.`<p:commandButton>`) is ajax by default, unlike standard Faces `UICommand` (e.g.`<h:commandButton>`).
 - Use `process` and `update` attributes (PrimeFaces names), not `execute` and `render` (standard names).
+- The default `process` value differs by component family — do NOT assume `@this` uniformly:
+  - **`AjaxBehavior`-based** (`<p:ajax>`): when `process` is unset, `AjaxBehaviorRenderer` explicitly defaults it to `@this`, exactly like standard `<f:ajax>`.
+  - **`AjaxSource`-based command components** (`<p:commandButton>`, `<p:commandLink>`, `<p:remoteCommand>`, etc.): `process` has NO Java-side default; an unset attribute is passed through as `null` all the way to the client. The client-side request builder (`core.ajax.ts`) then falls back to `@all` when nothing was resolved — the ENTIRE view is processed, not just the triggering component. To scope processing to the component itself, set `process="@this"` explicitly.
 - For lazy-loading datatables: implement `LazyDataModel<T>` with `count()` and `load()` methods.
 - As catch-all `UIMessages`, prefer `<p:growl>` or `<p:messages>` with `redisplay="false"`.
 - For file downloads with ajax, use `<p:fileDownload>` which supports ajax since PrimeFaces 10; alternatively, disable ajax with `ajax="false"` on the `UICommand`.

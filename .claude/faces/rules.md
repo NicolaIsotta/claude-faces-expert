@@ -227,7 +227,7 @@ For minimal project configuration (web.xml, taglib, directory structure), see `.
 
 - `<f:ajax execute="...">` / `<p:ajax process="...">`: controls which components are processed server-side.
 - `<f:ajax render="...">` / `<p:ajax update="...">`: controls which components are re-rendered.
-- Default execute/process is `@this`; default render/update is `@none`.
+- Default execute/process is `@this`; default render/update is `@none`. This holds for standard `<f:ajax>` and PrimeFaces `<p:ajax>` (both `AjaxBehavior`-based). It does NOT hold for other PrimeFaces `AjaxSource` command components (`<p:commandButton>`, `<p:commandLink>`, `<p:remoteCommand>`, etc.) — when this project includes PrimeFaces, see `.claude/faces/topics/primefaces.md` for their actual (differing) default.
 - Use `execute="@form"` or `process="@form"` when the entire form needs processing.
 - When referencing components across components implementing `NamingContainer` interface (`<h:form>`, `<h:dataTable>`, `<ui:repeat>`, `<p:dataTable>`, `<p:tabView>`, composite components, etc), use the full client ID with leading colon: `render=":otherFormId:componentId"`.
 - A component with `rendered="false"` cannot be found for ajax update; update its always-rendered wrapper instead.
