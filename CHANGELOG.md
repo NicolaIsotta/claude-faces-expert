@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 1.6.0
 
 ### Documentation — Changed
 - **CONTRIBUTING.md**: releasing now publishes a GitHub Release for the tag, with the notes taken from the matching `CHANGELOG.md` section. That is what notifies anyone watching the repository for releases, and what makes `/releases/latest` resolve. Every release from 1.0.0 on has one.
