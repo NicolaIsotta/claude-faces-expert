@@ -163,7 +163,20 @@ For minimal project configuration (web.xml, taglib, directory structure), see `.
 - Once you need to parameterize an include file with more than two `<ui:param>` instances, then better convert to tag file.
 - Once you need to parameterize a whole bean or a method call on include or tagfile, then better convert to composite component.
 - Once you need to bind a whole include/tagfile containing multiple `UIInput` and/or `UICommand` components to a single custom model like `<my:tag value="#{bean.customModel}">`, then better convert to composite component.
-- Composite component definition files (under `resources/<library>/<name>.xhtml`) MUST be rooted at `<ui:component>`, NOT `<html>` with `<!DOCTYPE html>`. The composite is a *fragment* that gets spliced into a host view — wrapping it in `<html>`/DOCTYPE is completely unnecessary. Declare the Faces taglibs on the `<ui:component>` element, then put `<cc:interface>` and `<cc:implementation>` inside.
+- Composite component definition files (under `resources/<library>/<name>.xhtml`) are best rooted at `<ui:component>`, with the Faces taglibs declared on it and `<cc:interface>` and `<cc:implementation>` inside. That is convention, not a requirement: what MAKES the file a composite is `<cc:interface>`, and a `<ui:composition>` root is equally valid. NEVER recognize a composite by its root element — only by `<cc:interface>`.
+- The one root that is genuinely wrong for a composite is `<html>` carrying `<!DOCTYPE html>`. The composite is a *fragment* spliced into a host view that has its own doctype, and while the `<html>` element itself is discarded along with the rest of the root, the DOCTYPE is not: it arrives as a SAX `startDTD` event during parsing, before trimming exists, and is stashed on the `FacesContext`, from where it becomes the doctype of the response. So it escapes the composite and overrides the host view's.
+- `<ui:composition>`, `<ui:component>`, `<ui:decorate>` and `<ui:fragment>` are the four combinations of two INDEPENDENT properties, which is why their names mislead. Trimming means everything outside the tag in that file is discarded; the component column means the tag itself puts a node in the tree.
+
+| Tag | Trims | Adds a component | Takes `template` |
+|---|---|---|---|
+| `<ui:composition>` | yes | no | yes |
+| `<ui:component>` | yes | yes | no |
+| `<ui:decorate>` | no | no | yes |
+| `<ui:fragment>` | no | yes | no |
+
+  - `<ui:component>` and `<ui:fragment>` are the SAME component and differ only in trimming. `<ui:composition>` and `<ui:decorate>` are likewise the same template-client handler differing only in trimming.
+  - The component the second column adds supports `rendered` attribute but renders NO markup of its own and is NOT a `NamingContainer`: it namespaces nothing, and it puts no element in the DOM. It must therefore NEVER be an ajax `render`/`update` target. For an always-rendered ajax wrapper use `<h:panelGroup id="...">`, which emits a real element.
+  - What `<ui:fragment>` is actually for is a `rendered` attribute on a block of markup without emitting a wrapper element for it — the server-side counterpart to the wrapper, not a replacement for it. Being in the tree also gives it an `id` and a `binding` for `findComponent` and `<f:event>`, both server-side only.
 - Inside a composite component definition file, use the prefix `cc` for the composite taglib (`xmlns:cc="jakarta.faces.composite"`). Avoid alternative prefixes (`composite`, `c`, `comp`) so composite source files are immediately recognizable across a codebase and match the spec/community convention.
 
 ### Resource Rules
