@@ -67,7 +67,6 @@ The lifecycle can be short-circuited:
 Ajax requests follow the same 6 phases but with partial processing:
 - **`execute`/`process`**: only the specified components are processed in phases 2-5.
 - **`render`/`update`**: only the specified components are rendered in phase 6; the response is a partial XML update, not a full page.
-- Default `execute` is `@this` (only the triggering component); default `render` is `@none`.
 
 ## PhaseListener
 
