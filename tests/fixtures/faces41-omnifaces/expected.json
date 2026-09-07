@@ -1,0 +1,31 @@
+{
+  "faces_version": "4.1",
+  "must": [
+    {
+      "id": "omnivalidator-managed-true",
+      "description": "QuantityValidator carries managed=true while <o:validator> sets its minimum and maximum attributes; the implementation hands out a CDI wrapper that has neither setter, so both attributes are silently dropped. Reported as an error."
+    },
+    {
+      "id": "omnivalidator-missing-dependent",
+      "description": "QuantityValidator has no CDI bean defining annotation such as @Dependent, so it is not discovered under the bean-discovery-mode=annotated default that the empty beans.xml implies."
+    },
+    {
+      "id": "omnivalidator-dual-attachment",
+      "description": "QuantityValidator is attached both through <o:validator> on the quantity input and through validator=\"quantityValidator\" on the bulkQuantity input, so the same class runs configured in one place and unconfigured in the other. Reported as a warning."
+    }
+  ],
+  "must_not": [
+    {
+      "id": "mojarra5-exemption-applied",
+      "description": "Waives the managed=true finding on the ground that Mojarra 5.0 or Faces 5.0 no longer wraps managed artifacts, even though this project runs Mojarra 4.1."
+    },
+    {
+      "id": "converter-managed-true-flagged",
+      "description": "Flags managed=true on OrderStatusConverter, which is attached only through the standard <f:converter converterId=\"orderStatusConverter\"> and has no attributes set from the view."
+    },
+    {
+      "id": "strip-managed-breaks-injection",
+      "description": "Claims that removing managed=true from QuantityValidator would break its @Inject of StockService, or advises keeping managed=true to preserve injection."
+    }
+  ]
+}

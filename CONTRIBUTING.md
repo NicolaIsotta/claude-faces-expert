@@ -31,6 +31,19 @@ If you open a PR against `main`, you'll be asked to retarget it to `develop`.
 - Hallucinated or unverifiable spec claims. If you're unsure, say so in the PR description.
 - Unrelated tooling/config changes that aren't tied to the change you're making.
 
+## Integration tests
+
+`/faces-review` has a local integration suite under `tests/`: small Faces projects with violations planted on purpose, reviewed by the skill, then graded on whether the report names each violation and withholds the false positives the rules forbid.
+
+It calls the Anthropic API on your own key, so it is local-only and never runs in CI. See `tests/README.md` for setup, cost and how to add a fixture.
+
+```sh
+./it.sh                              # every fixture
+./it.sh -k faces41-primefaces        # one fixture
+```
+
+A pull request that changes a rule does not have to run the suite, but a rule change that a fixture would catch should come with one.
+
 ## Releases
 
 Contributors don't need to touch versions — leave that to the release commit. Maintainers cut one as follows.

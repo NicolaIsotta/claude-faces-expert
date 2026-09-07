@@ -1,0 +1,49 @@
+<ui:composition template="/templates/layout.xhtml"
+    xmlns:h="jakarta.faces.html"
+    xmlns:f="jakarta.faces.core"
+    xmlns:ui="jakarta.faces.facelets"
+    xmlns:c="jakarta.tags.core">
+
+    <ui:param name="title" value="Registration" />
+
+    <ui:define name="content">
+
+        <h:form id="registrationForm">
+            <h:outputLabel for="email" value="Email" />
+            <h:inputText id="email" value="#{registrationBean.email}" required="true" />
+
+            <h:outputLabel value="Name" />
+            <h:inputText value="#{registrationBean.name}" />
+
+            <h:outputLabel for="topics" value="Topics" />
+            <h:selectManyCheckbox id="topics" value="#{registrationBean.topics}">
+                <f:selectItems value="#{registrationBean.availableTopics}" />
+            </h:selectManyCheckbox>
+
+            <c:if test="#{registrationBean.newsletterEnabled}">
+                <h:outputText style="color: #c00; font-weight: bold"
+                    value="You will receive the weekly newsletter." />
+            </c:if>
+
+            <h:commandButton id="register" value="Register" action="#{registrationBean.register}" />
+        </h:form>
+
+        <h:commandButton id="subscribe" value="Subscribe" action="#{registrationBean.subscribe}" />
+
+        <h:form id="loginForm">
+            <h:outputLabel for="username" value="Username" />
+            <h:inputText id="username" value="#{registrationBean.username}" immediate="true" required="true" />
+            <h:message for="username" />
+
+            <h:outputLabel for="password" value="Password" />
+            <h:inputSecret id="password" value="#{registrationBean.password}" required="true" />
+            <h:message for="password" />
+
+            <h:commandButton id="login" value="Log in" action="#{registrationBean.login}" />
+            <h:commandButton id="remindPassword" value="Password forgotten"
+                action="#{registrationBean.remindPassword}" immediate="true" />
+        </h:form>
+
+    </ui:define>
+
+</ui:composition>

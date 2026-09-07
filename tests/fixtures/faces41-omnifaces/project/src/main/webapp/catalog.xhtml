@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html xmlns:h="jakarta.faces.html"
+    xmlns:f="jakarta.faces.core"
+    xmlns:o="omnifaces">
+
+    <h:head>
+        <title>Catalog</title>
+    </h:head>
+
+    <h:body>
+
+        <h:form id="catalogForm">
+            <h:outputLabel for="quantity" value="Quantity" />
+            <h:inputText id="quantity" value="#{catalogBean.quantity}">
+                <o:validator validatorId="quantityValidator"
+                    minimum="#{catalogBean.minimumQuantity}"
+                    maximum="#{catalogBean.maximumQuantity}" />
+            </h:inputText>
+            <h:message for="quantity" />
+
+            <h:outputLabel for="bulkQuantity" value="Bulk quantity" />
+            <h:inputText id="bulkQuantity" value="#{catalogBean.bulkQuantity}"
+                validator="quantityValidator" />
+            <h:message for="bulkQuantity" />
+
+            <h:outputLabel for="status" value="Status" />
+            <h:selectOneMenu id="status" value="#{catalogBean.status}">
+                <f:converter converterId="orderStatusConverter" />
+                <f:selectItems value="#{catalogBean.availableStatuses}" />
+            </h:selectOneMenu>
+            <h:message for="status" />
+
+            <h:commandButton id="order" value="Order" action="#{catalogBean.order}" />
+
+            <h:messages id="messages" redisplay="false" />
+        </h:form>
+
+    </h:body>
+
+</html>

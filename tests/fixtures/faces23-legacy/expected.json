@@ -1,0 +1,27 @@
+{
+  "faces_version": "2.3",
+  "must": [
+    {
+      "id": "phaselistener-message-shuttle",
+      "description": "MessageKeeperPhaseListener shuttles FacesMessages through the session to survive a redirect, which <f:viewAction> navigation or Flash.setKeepMessages(true) at the redirecting call site already does."
+    },
+    {
+      "id": "postback-guard-in-postconstruct",
+      "description": "TicketBean.init() guards its GET-only initialization with an isPostback() check in @PostConstruct; <f:viewAction> is the mechanism for that."
+    }
+  ],
+  "must_not": [
+    {
+      "id": "implicit-uuid-converter",
+      "description": "Proposes replacing UuidConverter with the implicit UUID converter, which Faces 4.1 introduces and this 2.3 runtime does not have, without labelling it as requiring an upgrade."
+    },
+    {
+      "id": "jakarta-namespaces-as-fix",
+      "description": "Reports the javax.faces packages or the http://xmlns.jcp.org/jsf namespaces as an error or warning to be fixed by switching to jakarta.faces, rather than as an info-level upgrade note."
+    },
+    {
+      "id": "faces-4-or-5-api",
+      "description": "Recommends any API introduced after Faces 2.3 — such as @ClientWindowScoped, CDI @Observes phase events, <o:sse>, or a Faces 5.0 feature — as an error-level or warning-level fix rather than an explicitly version-labelled info note."
+    }
+  ]
+}

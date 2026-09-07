@@ -1,0 +1,18 @@
+<ui:component xmlns:h="jakarta.faces.html"
+    xmlns:f="jakarta.faces.core"
+    xmlns:ui="jakarta.faces.facelets"
+    xmlns:cc="jakarta.faces.composite">
+
+    <cc:interface>
+        <cc:attribute name="value" required="true" />
+        <cc:attribute name="items" required="true" />
+    </cc:interface>
+
+    <cc:implementation>
+        <h:selectManyCheckbox id="topics" value="#{cc.attrs.value}">
+            <f:selectItems value="#{cc.attrs.items}" />
+        </h:selectManyCheckbox>
+        <h:message for="topics" />
+    </cc:implementation>
+
+</ui:component>

@@ -1,0 +1,67 @@
+{
+  "faces_version": "4.1",
+  "must": [
+    {
+      "id": "command-outside-form",
+      "description": "The <h:commandButton id=\"subscribe\"> in index.xhtml sits outside every UIForm, so its action is never invoked."
+    },
+    {
+      "id": "input-without-message",
+      "description": "The <h:inputText id=\"email\"> in index.xhtml has no <h:message for=\"email\">, so its conversion and validation messages are never displayed."
+    },
+    {
+      "id": "no-catchall-messages",
+      "description": "index.xhtml has no catch-all <h:messages redisplay=\"false\">."
+    },
+    {
+      "id": "generated-id",
+      "description": "The <h:inputText value=\"#{registrationBean.name}\"> in index.xhtml has no explicit id and therefore gets a generated one; it should be id=\"name\" after the property."
+    },
+    {
+      "id": "jstl-for-conditional-rendering",
+      "description": "The <c:if test=\"#{registrationBean.newsletterEnabled}\"> in index.xhtml uses JSTL to conditionally render rather than build the view; it should be the rendered attribute instead."
+    },
+    {
+      "id": "inline-style",
+      "description": "The <h:outputText> in index.xhtml carries an inline style attribute instead of a CSS class."
+    },
+    {
+      "id": "template-outside-webinf",
+      "description": "templates/layout.xhtml lives in the webapp root instead of /WEB-INF/templates/, so it is reachable at its own URL. Reported as an error."
+    },
+    {
+      "id": "selectmany-immutable-list",
+      "description": "RegistrationBean.init() backs the <h:selectManyCheckbox> topics property with List.of(), an immutable list, which throws UnsupportedOperationException when Faces populates it during decode."
+    },
+    {
+      "id": "impure-getter",
+      "description": "RegistrationBean.getAvailableTopics() lazy-loads from TopicService inside the getter instead of initializing in @PostConstruct."
+    },
+    {
+      "id": "composite-outside-webinf",
+      "description": "resources/components/topicPicker.xhtml is a composite component in the default resources directory instead of /WEB-INF/resources/, where it would need jakarta.faces.WEBAPP_RESOURCES_DIRECTORY set to WEB-INF/resources. Reported as a warning."
+    }
+  ],
+  "must_not": [
+    {
+      "id": "passthrough-conversion",
+      "description": "Proposes converting the plain Faces components to passthrough elements, or otherwise nudges the project toward the passthrough markup style."
+    },
+    {
+      "id": "strip-immediate-on-input",
+      "description": "Proposes removing or changing immediate=\"true\" on the <h:inputText id=\"username\"> in the login form."
+    },
+    {
+      "id": "faces-5-api",
+      "description": "Recommends an API introduced after Faces 4.1 (a Faces 5.0 feature such as CDI @Observes phase events, the placeholder attribute, ENABLE_CSP_NONCE, or the FacesMessage.Severity enum) as an error-level or warning-level fix rather than as an explicitly version-labelled info note."
+    },
+    {
+      "id": "resources-move-half-fix",
+      "description": "Advises moving the composite or the stylesheet into /WEB-INF/resources/ without also setting jakarta.faces.WEBAPP_RESOURCES_DIRECTORY, or advises setting that context-param without also moving the files."
+    },
+    {
+      "id": "source-disclosure-under-xhtml-mapping",
+      "description": "Claims the raw Facelets source of layout.xhtml or topicPicker.xhtml can be downloaded, even though web.xml maps FacesServlet to *.xhtml, which makes those files processed rather than served."
+    }
+  ]
+}

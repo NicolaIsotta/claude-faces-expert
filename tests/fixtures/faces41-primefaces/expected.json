@@ -1,0 +1,39 @@
+{
+  "faces_version": "4.1",
+  "must": [
+    {
+      "id": "ajaxsource-process-default",
+      "description": "The <p:commandButton id=\"refresh\"> in orders.xhtml has no process attribute, so PrimeFaces falls back to @all and processes the entire view; it needs process=\"@this\" (or another explicit scope)."
+    },
+    {
+      "id": "poll-process-default",
+      "description": "The <p:poll interval=\"2\"> in orders.xhtml has no process attribute, so it reprocesses the whole view every two seconds."
+    },
+    {
+      "id": "filedownload-over-ajax",
+      "description": "The <p:commandButton id=\"export\"> triggers a file download while ajax is on, which is the PrimeFaces default; it needs ajax=\"false\" or <p:fileDownload>."
+    },
+    {
+      "id": "head-facet-last",
+      "description": "The <f:facet name=\"last\"> inside <h:head> in orders.xhtml is a PrimeFaces-specific HeadRenderer extension; the <h:outputStylesheet> belongs in <h:body> instead."
+    },
+    {
+      "id": "cross-namingcontainer-update",
+      "description": "The <p:commandButton id=\"select\"> inside the orderTable updates \"summaryPanel\", which lives in another form, without a leading colon and full client id."
+    }
+  ],
+  "must_not": [
+    {
+      "id": "ajaxsource-default-claimed-this",
+      "description": "States that a PrimeFaces AjaxSource command such as <p:commandButton> or <p:poll> defaults its process attribute to @this."
+    },
+    {
+      "id": "pajax-default-claimed-all",
+      "description": "Flags the <p:ajax event=\"keyup\"> on the customer input for having no process attribute, or states that <p:ajax> defaults process to @all."
+    },
+    {
+      "id": "dialog-needs-own-form",
+      "description": "States that the <p:dialog id=\"orderDialog\"> needs its own UIForm, or that it is moved to the end of the body, even though it declares no appendTo and sits inside <h:form id=\"orderForm\">."
+    }
+  ]
+}

@@ -2,3 +2,10 @@
 .classpath
 .project
 .settings/
+
+# Env
+.env.*
+
+# Tests
+tests/.reports/
+__pycache__/

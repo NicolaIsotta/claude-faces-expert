@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html xmlns:h="jakarta.faces.html"
+    xmlns:f="jakarta.faces.core">
+
+    <h:head>
+        <title>Invoice</title>
+    </h:head>
+
+    <h:body>
+
+        <f:metadata>
+            <f:viewParam name="id" value="#{invoiceBean.id}" />
+            <f:viewAction action="#{invoiceBean.load}" />
+        </f:metadata>
+
+        <h:form id="invoiceForm">
+            <h:outputLabel for="amount" value="Amount" />
+            <h:inputText id="amount" value="#{invoiceBean.amount}" required="true" />
+            <h:message for="amount" />
+
+            <h:commandButton id="save" value="Save" action="#{invoiceBean.save}" />
+
+            <h:messages id="messages" redisplay="false" />
+        </h:form>
+
+    </h:body>
+
+</html>

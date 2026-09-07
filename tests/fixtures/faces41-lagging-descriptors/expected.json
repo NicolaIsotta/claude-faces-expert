@@ -1,0 +1,27 @@
+{
+  "faces_version": "4.1",
+  "must": [
+    {
+      "id": "faces-config-schemalocation-half-fix",
+      "description": "faces-config.xml declares version=\"4.1\" but its xsi:schemaLocation still points at web-facesconfig_4_0.xsd; only one half of the bump was applied."
+    },
+    {
+      "id": "webxml-version-lags-servlet-api",
+      "description": "web.xml declares Servlet version 5.0 in both its version attribute and its xsi:schemaLocation while jakarta.servlet-api is 6.1.0, so it should be bumped to 6.1."
+    }
+  ],
+  "must_not": [
+    {
+      "id": "lag-reported-as-error",
+      "description": "Reports a lagging or half-bumped descriptor version as an error rather than a warning, or claims the application will not deploy because of it."
+    },
+    {
+      "id": "empty-beans-xml-flagged",
+      "description": "Flags the empty beans.xml as missing a version attribute, a schema declaration, or content."
+    },
+    {
+      "id": "webxml-derived-from-faces-version",
+      "description": "Derives the web.xml Servlet version or the faces-config.xml version from a Jakarta EE platform version, or assumes the three descriptor versions must move together, rather than reading each from the artifact supplying that API."
+    }
+  ]
+}

@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html xmlns:h="jakarta.faces.html"
+    xmlns:f="jakarta.faces.core"
+    xmlns:p="primefaces">
+
+    <h:head>
+        <title>Orders</title>
+        <f:facet name="last">
+            <h:outputStylesheet name="styles/orders.css" />
+        </f:facet>
+    </h:head>
+
+    <h:body>
+
+        <h:form id="filterForm">
+            <p:inputText id="customer" value="#{ordersBean.customer}">
+                <p:ajax event="keyup" update="orderTable" />
+            </p:inputText>
+            <p:message for="customer" />
+
+            <p:commandButton id="refresh" value="Refresh"
+                action="#{ordersBean.refresh}" update="orderTable" />
+
+            <p:poll interval="2" listener="#{ordersBean.refresh}" update="orderTable" />
+        </h:form>
+
+        <h:form id="orderForm">
+            <p:dataTable id="orderTable" var="order" value="#{ordersBean.orders}">
+                <p:column headerText="Number">
+                    <h:outputText value="#{order.number}" />
+                </p:column>
+                <p:column headerText="Actions">
+                    <p:commandButton id="select" value="Select"
+                        action="#{ordersBean.select(order)}" process="@this" update="summaryPanel" />
+                </p:column>
+            </p:dataTable>
+
+            <p:commandButton id="export" value="Export to PDF" action="#{ordersBean.export}" />
+
+            <p:dialog id="orderDialog" header="Order" widgetVar="orderDialog">
+                <p:outputLabel for="reference" value="Reference" />
+                <p:inputText id="reference" value="#{ordersBean.reference}" />
+                <p:message for="reference" />
+
+                <p:commandButton id="save" value="Save"
+                    action="#{ordersBean.save}" process="@form" update="@form" />
+            </p:dialog>
+
+            <p:messages id="messages" redisplay="false" />
+        </h:form>
+
+        <h:form id="summaryForm">
+            <p:outputPanel id="summaryPanel">
+                <h:outputText value="#{ordersBean.summary}" />
+            </p:outputPanel>
+        </h:form>
+
+    </h:body>
+
+</html>
