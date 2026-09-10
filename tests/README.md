@@ -36,7 +36,7 @@ Reports land in `tests/.reports/<fixture>.md` — read the one for a failing fix
 | `FACES_IT_RETRIES` | `1` | Extra attempts when a fixture's expectations are unmet |
 | `FACES_IT_TIMEOUT` | `900` | Seconds allowed per `claude` invocation |
 
-The review runs with `--permission-prompts none`, so anything that would prompt is denied rather than hanging. The skill's own `allowed-tools` (`Read`, `Glob`, `Grep`, `Agent`) cover the review itself, but a subagent reaching for the network to verify an API against the spec is denied — expect the report to mark an API unconfirmed where an interactive run would have looked it up.
+The review runs with `--permission-mode manual`, so anything that would prompt is denied rather than hanging. The skill's own `allowed-tools` (`Read`, `Glob`, `Grep`, `Agent`) cover the review itself, but a subagent reaching for the network to verify an API against the spec is denied — expect the report to mark an API unconfirmed where an interactive run would have looked it up.
 
 A run measures the WORKING TREE. `harness.stage()` copies `.claude/faces` and `.claude/skills` from the repository into a temp copy of the fixture, and points `CLAUDE_CONFIG_DIR` at a throwaway directory, so a user-scope install of the same knowledge base cannot answer for the branch under test.
 
