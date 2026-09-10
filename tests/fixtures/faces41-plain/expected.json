@@ -40,6 +40,14 @@
     {
       "id": "composite-outside-webinf",
       "description": "resources/components/topicPicker.xhtml is a composite component in the default resources directory instead of /WEB-INF/resources/, where it would need jakarta.faces.WEBAPP_RESOURCES_DIRECTORY set to WEB-INF/resources. Reported as a warning."
+    },
+    {
+      "id": "panelgroup-only-rendered",
+      "description": "The <h:panelGroup rendered=\"#{registrationBean.newsletterEnabled}\"> around the two \"Newsletter subscription is active\" <h:outputText> components in index.xhtml carries no other attribute and therefore emits no element at all; it should be <ui:fragment rendered=\"...\">."
+    },
+    {
+      "id": "panelgroup-single-child",
+      "description": "The <h:panelGroup rendered=\"#{registrationBean.trialAccount}\"> around the single \"Trial account expires in 30 days\" <h:outputText> in index.xhtml should be dropped entirely, with the rendered attribute moved onto that <h:outputText>."
     }
   ],
   "must_not": [
@@ -62,6 +70,14 @@
     {
       "id": "source-disclosure-under-xhtml-mapping",
       "description": "Claims the raw Facelets source of layout.xhtml or topicPicker.xhtml can be downloaded, even though web.xml maps FacesServlet to *.xhtml, which makes those files processed rather than served."
+    },
+    {
+      "id": "ui-fragment-inside-panelgrid",
+      "description": "Proposes replacing a <h:panelGroup> inside the <h:panelGrid> in index.xhtml with <ui:fragment>, or otherwise calls those cell wrappers superfluous."
+    },
+    {
+      "id": "move-rendered-onto-panelgrid-cell-child",
+      "description": "Proposes moving the rendered attribute from a <h:panelGroup> inside the <h:panelGrid> in index.xhtml onto its child, which keeps an empty cell instead of dropping the cell and therefore changes the table."
     }
   ]
 }

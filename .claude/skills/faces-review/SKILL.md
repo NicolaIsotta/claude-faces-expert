@@ -65,6 +65,7 @@ Because these findings are the most prone to false positives, each one MUST stat
 - Every `UIInput` has a corresponding `UIMessage`.
 - A catch-all `UIMessages` with `redisplay="false"` exists in each view; when using ajax, its ID is covered by `render`/`update`.
 - Conditionally rendered components that are ajax-updated are wrapped in an always-rendered container, and ajax updates target the wrapper ID.
+- A `<h:panelGroup>` whose only attribute is `rendered` emits no element at all and reads as `<ui:fragment rendered="...">`; when it wraps a single component, `rendered` belongs on that component and the wrapper goes. Report `info`. Neither rewrite applies inside `<h:panelGrid>`, where the wrapper is a cell, nor to a wrapper that is an ajax `render`/`update` target, which needs the element it emits — see "Facelets Rules" in `.claude/faces/rules.md`.
 - `NamingContainer`, `UIInput` and `UICommand` components have explicit IDs (no generated IDs); IDs follow naming convention (property name for `value`, method name for `action`, view ID name for forms/panels).
 - `binding` is not used for data binding; `binding` is only used on page-scoped variables for component cross-referencing within the same view.
 - Ajax `render`/`update` references across `NamingContainer` boundaries use full client ID with leading colon.

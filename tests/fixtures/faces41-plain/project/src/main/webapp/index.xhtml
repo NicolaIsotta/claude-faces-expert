@@ -30,6 +30,31 @@
 
         <h:commandButton id="subscribe" value="Subscribe" action="#{registrationBean.subscribe}" />
 
+        <h:panelGroup rendered="#{registrationBean.newsletterEnabled}">
+            <h:outputText value="Newsletter subscription is active." />
+            <h:outputText value="#{registrationBean.email}" />
+        </h:panelGroup>
+
+        <h:panelGroup rendered="#{registrationBean.trialAccount}">
+            <h:outputText value="Trial account expires in 30 days." />
+        </h:panelGroup>
+
+        <h:panelGrid columns="2">
+            <h:outputLabel value="Email" />
+            <h:outputText value="#{registrationBean.email}" />
+
+            <h:outputLabel value="Newsletter" />
+            <h:panelGroup rendered="#{registrationBean.newsletterEnabled}">
+                <h:outputText value="Weekly" />
+                <h:outputText value="#{registrationBean.email}" />
+            </h:panelGroup>
+
+            <h:outputLabel value="Trial" />
+            <h:panelGroup rendered="#{registrationBean.trialAccount}">
+                <h:outputText value="30 days" />
+            </h:panelGroup>
+        </h:panelGrid>
+
         <h:form id="loginForm">
             <h:outputLabel for="username" value="Username" />
             <h:inputText id="username" value="#{registrationBean.username}" immediate="true" required="true" />
