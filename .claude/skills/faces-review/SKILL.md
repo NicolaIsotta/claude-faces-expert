@@ -59,7 +59,7 @@ Two notes on `immediate="true"`. On a non-ajax command it is still the mechanism
 Because these findings are the most prone to false positives, each one MUST state what the built-in covers and confirm nothing else is lost. If the construct does more than the built-in, report `info` naming the difference — never as a fix-this.
 
 ### XHTML / Facelets
-- XML namespaces match the project's Faces version.
+- Standard XML namespaces match the project's Faces version. A namespace tied to a component-declared tag, custom taglib, or composite library is never reported as invalid, and one that's unused in the view is `info`, not `warning`/`error` — see "XML Namespaces" in `.claude/faces/rules.md`.
 - HTML5 doctype `<!DOCTYPE html>` is used, not XHTML doctype.
 - No "god form", no nested `UIForm`, and `UIInput`/`UICommand` components are inside a `UIForm` — see "Component Rules" in `.claude/faces/rules.md`.
 - Every `UIInput` has a corresponding `UIMessage`.

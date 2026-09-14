@@ -120,7 +120,7 @@ xmlns:cc="jakarta.faces.composite"
 xmlns:pt="jakarta.faces.passthrough"
 xmlns:c="jakarta.tags.core"
 ```
-NEVER add `xmlns="http://www.w3.org/1999/xhtml"` as the default namespace on the page root in Faces 4.0+: it is implied by Facelets, adds noise to every `<html>` declaration without effect, and leaks into the rendered output. Mojarra dropped the development-stage warning about unknown HTML tags in 4.0, so the historical reason for keeping the default namespace is also gone. Use only Faces taglib namespaces (`xmlns:h=...`, `xmlns:f=...`, `xmlns:ui=...`, etc.) on the root element.
+NEVER add `xmlns="http://www.w3.org/1999/xhtml"` as the default namespace on the page root in Faces 4.0+: it is implied by Facelets, adds noise to every `<html>` declaration without effect, and leaks into the rendered output. Mojarra dropped the development-stage warning about unknown HTML tags in 4.0, so the historical reason for keeping the default namespace is also gone. Use only Faces taglib namespaces (`xmlns:h=...`, `xmlns:f=...`, `xmlns:ui=...`, etc.) on the root element. Add `xmlns:component="jakarta.faces.component"` (or any prefix) only on a page that actually uses a tag from a `@FacesComponent(createTag = true)` class with no explicit `namespace` — never as a default addition, since an unused namespace is the same noise this paragraph forbids for the XHTML default namespace.
 
 JSF 2.2+ / Faces 3.0 (Java EE 7 - Jakarta EE 9):
 ```xml
@@ -133,6 +133,7 @@ xmlns:cc="http://xmlns.jcp.org/jsf/composite"
 xmlns:pt="http://xmlns.jcp.org/jsf/passthrough"
 xmlns:c="http://xmlns.jcp.org/jsp/jstl/core"
 ```
+Same conditional applies here with `xmlns:component="http://xmlns.jcp.org/jsf/component"`.
 
 Legacy JSF 1.0-2.1 (J2EE 1.4 - Java EE 6):
 ```xml
@@ -140,7 +141,13 @@ xmlns="http://www.w3.org/1999/xhtml"
 xmlns:h="http://java.sun.com/jsf/html"
 xmlns:f="http://java.sun.com/jsf/core"
 ```
-The prefixes above (`h`, `f`, `ui`, `cc`, `pt`, `faces`) are CONVENTION ONLY, not part of any API. Only the namespace URI binds, and a project is free to choose any prefix: `xmlns:attr="jakarta.faces.passthrough"` with `<h:inputText attr:data-foo="bar">` is exactly equivalent to the `pt:` form, and `xmlns:html="jakarta.faces.html"` makes `<html:inputText>` the same component as `<h:inputText>`. NEVER treat a prefix as the recognition pattern; resolve it to its namespace first, and recognise any prefix bound to a Faces namespace.
+The prefixes above (`h`, `f`, `ui`, `cc`, `pt`, `faces`, `component`) are CONVENTION ONLY, not part of any API. Only the namespace URI binds, and a project is free to choose any prefix: `xmlns:attr="jakarta.faces.passthrough"` with `<h:inputText attr:data-foo="bar">` is exactly equivalent to the `pt:` form, and `xmlns:html="jakarta.faces.html"` makes `<html:inputText>` the same component as `<h:inputText>`. NEVER treat a prefix as the recognition pattern; resolve it to its namespace first, and recognise any prefix bound to a Faces namespace.
+
+- **Component-declared tags (`@FacesComponent(createTag = true)`)**: When the `namespace` attribute is omitted, Jakarta Faces automatically assigns the default namespace constant `FacesComponent.NAMESPACE`:
+  - JSF 2.2 - 3.0: `http://xmlns.jcp.org/jsf/component`
+  - Faces 4.0+: `jakarta.faces.component`
+- **Custom tag libraries**: Declared in `*.taglib.xml` (e.g. `<facelet-taglib><namespace>...</namespace></facelet-taglib>`) or custom composite folders (`xmlns:my="jakarta.faces.composite/<folder>"`).
+- **Review guidance**: Never report an unknown namespace as invalid without first checking for Java classes annotated with `@FacesComponent(createTag = true)`, custom `*.taglib.xml` descriptors, composite libraries, and third-party dependencies (PrimeFaces, OmniFaces). A namespace declared on a root element but not referenced by any tag in the view is an **unused import** (`info`), never an invalid namespace (`warning`/`error`).
 
 Use the namespace version matching the project's Faces version.
 Check `pom.xml` dependencies or `faces-config.xml` version to determine which version is in use.

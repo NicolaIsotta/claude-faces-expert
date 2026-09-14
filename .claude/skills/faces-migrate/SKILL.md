@@ -169,6 +169,7 @@ This is purely a package rename; no behavioral changes.
   - `http://xmlns.jcp.org/jsf/composite` → `jakarta.faces.composite`
   - `http://xmlns.jcp.org/jsf/passthrough` → `jakarta.faces.passthrough`
   - `http://xmlns.jcp.org/jsf` → `jakarta.faces`
+  - `http://xmlns.jcp.org/jsf/component` → `jakarta.faces.component`
   - `http://xmlns.jcp.org/jsp/jstl/core` → `jakarta.tags.core`
 - Remove `xmlns="http://www.w3.org/1999/xhtml"` from XHTML files; since Faces 4.0 it is always implied.
 - Remove any remaining `@ManagedBean` usage (removed in Faces 4.0); replace with `@Named` + CDI scope.
