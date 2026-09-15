@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 1.7.0
 
 ### Rules — Added
 - New rule covering the namespaces a page may declare beyond the canonical per-version blocks, and how to tell a legitimate one from a broken one. A `@FacesComponent(createTag = true)` class puts its tag in `FacesComponent.NAMESPACE` — `http://xmlns.jcp.org/jsf/component` in JSF 2.2 - 3.0 and `jakarta.faces.component` in Faces 4.0+ — unless the annotation pins one; a `*.taglib.xml` declares its own and covers its composites; third-party libraries ship theirs. A namespace nothing registers fails without a word: Facelets copies the tag into the response as literal markup and leaks the declaration into the rendered `<html>`. The jcp component namespace is not such a case on Faces 4.0+, since Mojarra and MyFaces both keep registering every component-declared tag under it next to the annotated namespace. What breaks is the reverse, a class pinning the old URI while the page uses `jakarta.faces.component`, which fails the view with `Tag Library supports namespace: jakarta.faces.component, but no tag was defined for name: <tag>`.
