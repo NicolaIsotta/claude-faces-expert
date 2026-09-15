@@ -2,7 +2,8 @@
     xmlns:h="jakarta.faces.html"
     xmlns:f="jakarta.faces.core"
     xmlns:ui="jakarta.faces.facelets"
-    xmlns:c="jakarta.tags.core">
+    xmlns:c="jakarta.tags.core"
+    xmlns:my="jakarta.faces.component">
 
     <ui:param name="title" value="Registration" />
 
@@ -54,6 +55,9 @@
                 <h:outputText value="30 days" />
             </h:panelGroup>
         </h:panelGrid>
+
+        <my:rating value="#{registrationBean.rating}" />
+        <my:badge value="#{registrationBean.membership}" />
 
         <h:form id="loginForm">
             <h:outputLabel for="username" value="Username" />

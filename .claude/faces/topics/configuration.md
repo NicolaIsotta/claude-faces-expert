@@ -76,18 +76,18 @@ So that all tags AND composites can be referenced via the same XML namespace `xm
 
 ## Java-Declared Component Tags (@FacesComponent)
 
-Since JSF 2.2, custom Facelets tags can be declared directly in Java without a `*.taglib.xml` descriptor by setting `createTag = true` on `@FacesComponent`:
-
+Since JSF 2.2, a custom Facelets tag can be declared in Java alone, without a `*.taglib.xml` descriptor, by setting `createTag = true` on `@FacesComponent`:
 ```java
 @FacesComponent(createTag = true, tagName = "myTag", value = "my.component.type")
 public class MyComponent extends UIComponentBase {
-    // ...
+
+    @Override
+    public String getFamily() {
+        return "my.component.family";
+    }
 }
 ```
-
-When `namespace` is not explicitly set, Jakarta Faces automatically assigns `FacesComponent.NAMESPACE` as the default tag namespace:
-- **`http://xmlns.jcp.org/jsf/component`** in JSF 2.2 - 3.0
-- **`jakarta.faces.component`** in Faces 4.0+
+The tag is then available as `<my:myTag>` on any page binding a prefix to `FacesComponent.NAMESPACE`. Set `namespace` on the annotation to put it in a namespace of your own instead. For the value of `FacesComponent.NAMESPACE` per Faces version, see "XML Namespaces" in `.claude/faces/rules.md`.
 
 ## Directory Structure
 

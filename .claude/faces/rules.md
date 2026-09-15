@@ -120,7 +120,7 @@ xmlns:cc="jakarta.faces.composite"
 xmlns:pt="jakarta.faces.passthrough"
 xmlns:c="jakarta.tags.core"
 ```
-NEVER add `xmlns="http://www.w3.org/1999/xhtml"` as the default namespace on the page root in Faces 4.0+: it is implied by Facelets, adds noise to every `<html>` declaration without effect, and leaks into the rendered output. Mojarra dropped the development-stage warning about unknown HTML tags in 4.0, so the historical reason for keeping the default namespace is also gone. Use only Faces taglib namespaces (`xmlns:h=...`, `xmlns:f=...`, `xmlns:ui=...`, etc.) on the root element. Add `xmlns:component="jakarta.faces.component"` (or any prefix) only on a page that actually uses a tag from a `@FacesComponent(createTag = true)` class with no explicit `namespace` — never as a default addition, since an unused namespace is the same noise this paragraph forbids for the XHTML default namespace.
+NEVER add `xmlns="http://www.w3.org/1999/xhtml"` as the default namespace on the page root in Faces 4.0+: it is implied by Facelets, adds noise to every `<html>` declaration without effect, and leaks into the rendered output. Mojarra dropped the development-stage warning about unknown HTML tags in 4.0, so the historical reason for keeping the default namespace is also gone. Use only Faces taglib namespaces (`xmlns:h=...`, `xmlns:f=...`, `xmlns:ui=...`, etc.) on the root element.
 
 JSF 2.2+ / Faces 3.0 (Java EE 7 - Jakarta EE 9):
 ```xml
@@ -133,7 +133,6 @@ xmlns:cc="http://xmlns.jcp.org/jsf/composite"
 xmlns:pt="http://xmlns.jcp.org/jsf/passthrough"
 xmlns:c="http://xmlns.jcp.org/jsp/jstl/core"
 ```
-Same conditional applies here with `xmlns:component="http://xmlns.jcp.org/jsf/component"`.
 
 Legacy JSF 1.0-2.1 (J2EE 1.4 - Java EE 6):
 ```xml
@@ -141,19 +140,20 @@ xmlns="http://www.w3.org/1999/xhtml"
 xmlns:h="http://java.sun.com/jsf/html"
 xmlns:f="http://java.sun.com/jsf/core"
 ```
-The prefixes above (`h`, `f`, `ui`, `cc`, `pt`, `faces`, `component`) are CONVENTION ONLY, not part of any API. Only the namespace URI binds, and a project is free to choose any prefix: `xmlns:attr="jakarta.faces.passthrough"` with `<h:inputText attr:data-foo="bar">` is exactly equivalent to the `pt:` form, and `xmlns:html="jakarta.faces.html"` makes `<html:inputText>` the same component as `<h:inputText>`. NEVER treat a prefix as the recognition pattern; resolve it to its namespace first, and recognise any prefix bound to a Faces namespace.
+The prefixes above (`h`, `f`, `ui`, `cc`, `pt`, `faces`) are CONVENTION ONLY, not part of any API. Only the namespace URI binds, and a project is free to choose any prefix: `xmlns:attr="jakarta.faces.passthrough"` with `<h:inputText attr:data-foo="bar">` is exactly equivalent to the `pt:` form, and `xmlns:html="jakarta.faces.html"` makes `<html:inputText>` the same component as `<h:inputText>`. NEVER treat a prefix as the recognition pattern; resolve it to its namespace first, and recognize any prefix bound to a Faces namespace.
 
-- **Component-declared tags (`@FacesComponent(createTag = true)`)**: When the `namespace` attribute is omitted, Jakarta Faces automatically assigns the default namespace constant `FacesComponent.NAMESPACE`:
-  - JSF 2.2 - 3.0: `http://xmlns.jcp.org/jsf/component`
-  - Faces 4.0+: `jakarta.faces.component`
-- **Custom tag libraries**: Declared in `*.taglib.xml` (e.g. `<facelet-taglib><namespace>...</namespace></facelet-taglib>`) or custom composite folders (`xmlns:my="jakarta.faces.composite/<folder>"`).
-- **Review guidance**: Never report an unknown namespace as invalid without first checking for Java classes annotated with `@FacesComponent(createTag = true)`, custom `*.taglib.xml` descriptors, composite libraries, and third-party dependencies (PrimeFaces, OmniFaces). A namespace declared on a root element but not referenced by any tag in the view is an **unused import** (`info`), never an invalid namespace (`warning`/`error`).
+A page may legitimately declare a namespace outside the blocks above. Such a namespace comes from one of these:
+- **Component-declared tags**: a `@FacesComponent(createTag = true)` class with no `namespace` attribute puts its tag in `FacesComponent.NAMESPACE`, which is `http://xmlns.jcp.org/jsf/component` in JSF 2.2 - 3.0 and `jakarta.faces.component` in Faces 4.0+. A class that sets `namespace` puts it wherever that attribute says.
+- **Custom tag libraries**: a `*.taglib.xml` declares its own `<namespace>`, which also covers the composites of its `<composite-library-name>`. A composite folder with no taglib of its own is addressed as the composite namespace of the project's version plus the folder name, e.g. `jakarta.faces.composite/mycomponents`.
+- **Third-party libraries**: PrimeFaces, OmniFaces and the like ship their own taglibs.
+
+Resolve such a namespace against those three sources before judging it. It is invalid only when none of them registers it, and Facelets then reports nothing: the tag is copied to the response as literal markup and the declaration leaks into the rendered `<html>`. `http://xmlns.jcp.org/jsf/component` is not such a case on Faces 4.0+, where Mojarra and MyFaces both keep registering every component-declared tag under it as well, so a page still using it keeps working. Pinning the old namespace on the class is what breaks: `@FacesComponent(namespace = "http://xmlns.jcp.org/jsf/component")` never registers `jakarta.faces.component`, and addressing that tag through the new namespace then fails the view with `Tag Library supports namespace: jakarta.faces.component, but no tag was defined for name: <tag>`. A namespace that resolves but that no tag in the view uses is merely an unused declaration.
 
 Use the namespace version matching the project's Faces version.
 Check `pom.xml` dependencies or `faces-config.xml` version to determine which version is in use.
 If the `faces-config.xml` exists and its version is outdated as compared to `pom.xml`, then ALWAYS confirm with developer before catching up.
 
-For minimal project configuration (web.xml, taglib, directory structure), see `.claude/faces/topics/configuration.md`.
+For minimal project configuration (web.xml, taglibs, component tags, directory structure), see `.claude/faces/topics/configuration.md`.
 
 ### Facelets Rules
 
