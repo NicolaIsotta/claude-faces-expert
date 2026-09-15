@@ -36,6 +36,12 @@ Each fixture prints its verdict and cost as it finishes, and the run ends with a
 
 Without `ANTHROPIC_API_KEY` the whole suite skips. A run costs roughly $0.30-$0.50 per fixture.
 
+A run measures the WORKING TREE.
+`harness.stage()` copies `.claude/faces` and `.claude/skills` from the repository into a temp copy of the fixture, and points `CLAUDE_CONFIG_DIR` at a throwaway directory, so a user-scope install of the same knowledge base cannot answer for the branch under test.
+
+The review runs with `--permission-mode manual`, so anything that would prompt is denied rather than hanging.
+The skill's own `allowed-tools` (`Read`, `Glob`, `Grep`, `Agent`) cover the review itself, but a subagent reaching for the network to verify an API against the spec is denied — expect the report to mark an API unconfirmed where an interactive run would have looked it up.
+
 # Reading a failure
 
 Every run writes the review it graded to `tests/.reports/<fixture>.md`.
@@ -63,9 +69,35 @@ Every knob is an environment variable, so it combines with `.env.local`:
 To check that a rule also lands on a smaller model:
 
 ```bash
-FACES_IT_MODEL=haiku ./it.sh -k faces41-omnifaces
+FACES_IT_MODEL=haiku ./it.sh faces41-omnifaces
 ```
 
 # Adding a fixture
 
-See `tests/README.md`.
+Create `tests/fixtures/<name>/` with:
+
+- `project/` — a real webapp: `pom.xml`, `WEB-INF/web.xml`, `WEB-INF/faces-config.xml`, `.xhtml` views, backing beans. The fixture is never compiled or deployed; the review reads the files.
+- `expected.json` — the checklist.
+
+```json
+{
+  "faces_version": "4.1",
+  "must": [
+    { "id": "kebab-case-id", "description": "One sentence naming the construct, the file, and why it is wrong." }
+  ],
+  "must_not": [
+    { "id": "kebab-case-id", "description": "One sentence naming the false positive the report must not contain." }
+  ]
+}
+```
+
+The runner discovers the directory on its own.
+`faces_version` is asserted directly against the runtime version the report states; the rest is graded by the judge model.
+
+Two things make a fixture worth its cost.
+
+Write each `description` so it can be decided from the report alone.
+The judge sees the description and the report, never the fixture, so "reports the wrong ajax default" is undecidable where "states that `<p:commandButton>` defaults `process` to `@this`" is not.
+
+Give the fixture more `must_not` entries than feel necessary.
+A rules edit regresses far more often by producing a new false positive than by dropping a finding, so plant the constructs the rules explicitly bless — a `<p:dialog>` with no `appendTo` inside a form, `managed=true` on a converter with no view-set attributes, a legitimate `immediate="true"` on a `UIInput` — beside the violations, and assert they stay unreported.
