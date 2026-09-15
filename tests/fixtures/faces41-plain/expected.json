@@ -46,11 +46,19 @@
       "description": "The <h:panelGroup rendered=\"#{registrationBean.newsletterEnabled}\"> around the two \"Newsletter subscription is active\" <h:outputText> components in index.xhtml carries no other attribute and therefore emits no element at all; it should be <ui:fragment rendered=\"...\">."
     },
     {
+      "id": "pinned-jcp-component-namespace",
+      "description": "index.xhtml addresses <my:badge> through xmlns:my=\"jakarta.faces.component\" while BadgeComponent pins @FacesComponent(namespace = \"http://xmlns.jcp.org/jsf/component\"), which registers the tag under the old namespace only, so the view fails with a TagException. Reported as an error."
+    },
+    {
       "id": "panelgroup-single-child",
       "description": "The <h:panelGroup rendered=\"#{registrationBean.trialAccount}\"> around the single \"Trial account expires in 30 days\" <h:outputText> in index.xhtml should be dropped entirely, with the rendered attribute moved onto that <h:outputText>."
     }
   ],
   "must_not": [
+    {
+      "id": "component-namespace-unknown",
+      "description": "Reports xmlns:my=\"jakarta.faces.component\" in index.xhtml as an unknown, invalid or version-mismatched namespace, or advises removing it, even though RatingComponent is a @FacesComponent(createTag = true) class whose <my:rating> tag lands in exactly that namespace."
+    },
     {
       "id": "passthrough-conversion",
       "description": "Proposes converting the plain Faces components to passthrough elements, or otherwise nudges the project toward the passthrough markup style."

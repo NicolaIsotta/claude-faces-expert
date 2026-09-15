@@ -74,6 +74,21 @@ The taglib file MUST minimally have this configuration:
 ```
 So that all tags AND composites can be referenced via the same XML namespace `xmlns:t="tags"`.
 
+## Java-Declared Component Tags (@FacesComponent)
+
+Since JSF 2.2, a custom Facelets tag can be declared in Java alone, without a `*.taglib.xml` descriptor, by setting `createTag = true` on `@FacesComponent`:
+```java
+@FacesComponent(createTag = true, tagName = "myTag", value = "my.component.type")
+public class MyComponent extends UIComponentBase {
+
+    @Override
+    public String getFamily() {
+        return "my.component.family";
+    }
+}
+```
+The tag is then available as `<my:myTag>` on any page binding a prefix to `FacesComponent.NAMESPACE`. Set `namespace` on the annotation to put it in a namespace of your own instead. For the value of `FacesComponent.NAMESPACE` per Faces version, see "XML Namespaces" in `.claude/faces/rules.md`.
+
 ## Directory Structure
 
 All assets/templates/includes/tagfiles/composites MUST be placed inside `WEB-INF` folder to prevent direct access by client.

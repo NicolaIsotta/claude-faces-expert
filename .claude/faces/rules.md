@@ -140,13 +140,20 @@ xmlns="http://www.w3.org/1999/xhtml"
 xmlns:h="http://java.sun.com/jsf/html"
 xmlns:f="http://java.sun.com/jsf/core"
 ```
-The prefixes above (`h`, `f`, `ui`, `cc`, `pt`, `faces`) are CONVENTION ONLY, not part of any API. Only the namespace URI binds, and a project is free to choose any prefix: `xmlns:attr="jakarta.faces.passthrough"` with `<h:inputText attr:data-foo="bar">` is exactly equivalent to the `pt:` form, and `xmlns:html="jakarta.faces.html"` makes `<html:inputText>` the same component as `<h:inputText>`. NEVER treat a prefix as the recognition pattern; resolve it to its namespace first, and recognise any prefix bound to a Faces namespace.
+The prefixes above (`h`, `f`, `ui`, `cc`, `pt`, `faces`) are CONVENTION ONLY, not part of any API. Only the namespace URI binds, and a project is free to choose any prefix: `xmlns:attr="jakarta.faces.passthrough"` with `<h:inputText attr:data-foo="bar">` is exactly equivalent to the `pt:` form, and `xmlns:html="jakarta.faces.html"` makes `<html:inputText>` the same component as `<h:inputText>`. NEVER treat a prefix as the recognition pattern; resolve it to its namespace first, and recognize any prefix bound to a Faces namespace.
+
+A page may legitimately declare a namespace outside the blocks above. Such a namespace comes from one of these:
+- **Component-declared tags**: a `@FacesComponent(createTag = true)` class with no `namespace` attribute puts its tag in `FacesComponent.NAMESPACE`, which is `http://xmlns.jcp.org/jsf/component` in JSF 2.2 - 3.0 and `jakarta.faces.component` in Faces 4.0+. A class that sets `namespace` puts it wherever that attribute says.
+- **Custom tag libraries**: a `*.taglib.xml` declares its own `<namespace>`, which also covers the composites of its `<composite-library-name>`. A composite folder with no taglib of its own is addressed as the composite namespace of the project's version plus the folder name, e.g. `jakarta.faces.composite/mycomponents`.
+- **Third-party libraries**: PrimeFaces, OmniFaces and the like ship their own taglibs.
+
+Resolve such a namespace against those three sources before judging it. It is invalid only when none of them registers it, and Facelets then reports nothing: the tag is copied to the response as literal markup and the declaration leaks into the rendered `<html>`. `http://xmlns.jcp.org/jsf/component` is not such a case on Faces 4.0+, where Mojarra and MyFaces both keep registering every component-declared tag under it as well, so a page still using it keeps working. Pinning the old namespace on the class is what breaks: `@FacesComponent(namespace = "http://xmlns.jcp.org/jsf/component")` never registers `jakarta.faces.component`, and addressing that tag through the new namespace then fails the view with `Tag Library supports namespace: jakarta.faces.component, but no tag was defined for name: <tag>`. A namespace that resolves but that no tag in the view uses is merely an unused declaration.
 
 Use the namespace version matching the project's Faces version.
 Check `pom.xml` dependencies or `faces-config.xml` version to determine which version is in use.
 If the `faces-config.xml` exists and its version is outdated as compared to `pom.xml`, then ALWAYS confirm with developer before catching up.
 
-For minimal project configuration (web.xml, taglib, directory structure), see `.claude/faces/topics/configuration.md`.
+For minimal project configuration (web.xml, taglibs, component tags, directory structure), see `.claude/faces/topics/configuration.md`.
 
 ### Facelets Rules
 

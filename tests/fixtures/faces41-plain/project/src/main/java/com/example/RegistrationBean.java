@@ -25,12 +25,16 @@ public class RegistrationBean implements Serializable {
     private List<String> availableTopics;
     private boolean newsletterEnabled;
     private boolean trialAccount;
+    private int rating;
+    private String membership;
 
     @PostConstruct
     public void init() {
         topics = List.of("releases");
         newsletterEnabled = true;
         trialAccount = true;
+        rating = 4;
+        membership = "gold";
     }
 
     public List<String> getAvailableTopics() {
@@ -103,6 +107,14 @@ public class RegistrationBean implements Serializable {
 
     public boolean isTrialAccount() {
         return trialAccount;
+    }
+
+    public int getRating() {
+        return rating;
+    }
+
+    public String getMembership() {
+        return membership;
     }
 
 }
